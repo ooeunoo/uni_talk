@@ -18,7 +18,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
     'Personal',
     'Accorions',
     'Icons',
-  ]; // the list of categories
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,6 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                 ),
               ),
             ),
-            const Text('App Title'),
           ],
         ),
         actions: [
@@ -108,7 +107,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
           // 클릭시 실행될 동작을 여기에 작성합니다.
         },
         backgroundColor: theme.primaryColor,
-        child: const Icon(Icons.add),
+        child: const Icon(CupertinoIcons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
