@@ -12,6 +12,9 @@ class _ChatItemState extends State<ChatItem> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return InkWell(
       onTapDown: (details) {
         setState(() {
@@ -38,3 +41,4 @@ class _ChatItemState extends State<ChatItem> {
     );
   }
 }
+//867429470268-hv122ij9rkkg9qi940dd868hct8p8ig1.apps.googleusercontent.com

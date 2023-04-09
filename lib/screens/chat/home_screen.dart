@@ -23,9 +23,9 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+
     double screenHeight = MediaQuery.of(context).size.height;
     double categoryHeight = screenHeight * 0.05;
-    double chatListHeight = screenHeight * 9.5;
 
     return Scaffold(
       appBar: AppBar(

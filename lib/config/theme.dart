@@ -6,7 +6,7 @@ final CustomTheme lightThemeData = CustomTheme(
     brightness: Brightness.light,
     primaryColor: const Color(0xFF697EC0),
     secondaryHeaderColor: const Color(0xFF829FCE),
-    scaffoldBackgroundColor: const Color(0xFFFCFCFC),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
     appBarTheme: AppBarTheme(
       color: Colors.white,
       iconTheme: const IconThemeData(color: Colors.black),
@@ -52,9 +52,9 @@ final CustomTheme darkThemeData = CustomTheme(
     brightness: Brightness.dark,
     primaryColor: const Color(0xFF697EC0),
     secondaryHeaderColor: const Color(0xFF829FCE),
-    scaffoldBackgroundColor: const Color(0xFF303030),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 0, 0, 0),
     appBarTheme: AppBarTheme(
-      color: const Color(0xFE303030),
+      color: const Color.fromARGB(252, 0, 0, 0),
       iconTheme: const IconThemeData(color: Colors.white),
       toolbarTextStyle: const TextTheme(
         titleLarge: TextStyle(color: Colors.white, fontSize: 20),
@@ -64,7 +64,7 @@ final CustomTheme darkThemeData = CustomTheme(
       ).titleLarge,
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color(0xFF303030),
+      backgroundColor: Color.fromARGB(255, 0, 0, 0),
       selectedItemColor: Color(0xFF697EC0),
       unselectedItemColor: Color(0xFF9BC0DC),
       showUnselectedLabels: true,

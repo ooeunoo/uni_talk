@@ -45,17 +45,17 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDPBC94CP74ib3gahfnmj0bjTUsmbm-2DA',
-    appId: '1:867429470268:web:ee4e6ad4330cd69053f339',
+    appId: '1:867429470268:web:2e63bc2969243a3e53f339',
     messagingSenderId: '867429470268',
     projectId: 'uni-talk-81f81',
     authDomain: 'uni-talk-81f81.firebaseapp.com',
     storageBucket: 'uni-talk-81f81.appspot.com',
-    measurementId: 'G-FRW23ZMWW4',
+    measurementId: 'G-Y768QC79L0',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC815rmVjqOEa4mUCMjcWnM2XDCjnPkn1o',
-    appId: '1:867429470268:android:2fa73a0028ec063053f339',
+    appId: '1:867429470268:android:75c9d9966150228b53f339',
     messagingSenderId: '867429470268',
     projectId: 'uni-talk-81f81',
     storageBucket: 'uni-talk-81f81.appspot.com',
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCeuG9SmiPRXZM-IcQuAf8sxVPAUjLp24A',
-    appId: '1:867429470268:ios:a040459bef6bd77a53f339',
+    appId: '1:867429470268:ios:0630d95ca956047053f339',
     messagingSenderId: '867429470268',
     projectId: 'uni-talk-81f81',
     storageBucket: 'uni-talk-81f81.appspot.com',
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCeuG9SmiPRXZM-IcQuAf8sxVPAUjLp24A',
-    appId: '1:867429470268:ios:a040459bef6bd77a53f339',
+    appId: '1:867429470268:ios:0630d95ca956047053f339',
     messagingSenderId: '867429470268',
     projectId: 'uni-talk-81f81',
     storageBucket: 'uni-talk-81f81.appspot.com',

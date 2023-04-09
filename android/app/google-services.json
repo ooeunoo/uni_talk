@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:867429470268:android:2fa73a0028ec063053f339",
+        "mobilesdk_app_id": "1:867429470268:android:75c9d9966150228b53f339",
         "android_client_info": {
           "package_name": "com.example.uni_talk"
         }
@@ -29,6 +29,13 @@
             {
               "client_id": "867429470268-j2stg6p9qvb2e5qibek49ocpsu0935fl.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "867429470268-h14aiqbqu3mbscdb995640ndt6mffd8f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.uniTalk"
+              }
             }
           ]
         }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:uni_talk/screens/auth/login_screen.dart';
 import 'package:uni_talk/screens/chat/home_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const ChatHomeScreen(),
-    const Text('Like'),
+    const LoginScreen(),
     const Text(' Profile'),
   ];
 
