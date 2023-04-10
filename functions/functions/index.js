@@ -19,10 +19,12 @@ exports.createKakaoCustomToken = functions.https.onRequest(
       photoURL: user.photoURL,
       displayName: user.displayName,
     };
+    console.log(updateParamstr);
 
     try {
       await admin.auth().updateUser(uid, updateParams);
     } catch (e) {
+      console.log(e);
       updateParams["uid"] = uid;
       await admin.auth().createUser(updateParams);
     }
