@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -8,12 +9,28 @@ import 'package:http/http.dart' as http;
 
 class UserService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? get currentUser => _auth.currentUser;
 
-  Future<User?> signIn(AuthPlatform platform) async {
+  Future<bool> isUserRegistered(String uid) async {
+    DocumentSnapshot snapshot =
+        await _firestore.collection('users').doc(uid).get();
+    return snapshot.exists;
+  }
+
+  Future<void> addUserToFirestore(
+      User user, Map<String, dynamic> userData) async {
+    await _firestore.collection('users').doc(user.uid).set(userData);
+  }
+
+  Future<User?> signIn(AuthPlatform platform,
+      {String? email, String? password}) async {
     switch (platform) {
+      case AuthPlatform.Local:
+        return signInWithLocal(email: email!, password: password!);
       case AuthPlatform.Google:
         return signInWithGoogle();
       case AuthPlatform.Kakao:
@@ -23,6 +40,26 @@ class UserService {
       default:
         return null;
     }
+  }
+
+  Future<User?> signUpWithLocal(
+      {required String email, required String password}) async {
+    final UserCredential userCredential =
+        await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return userCredential.user;
+  }
+
+  Future<User?> signInWithLocal(
+      {required String email, required String password}) async {
+    final UserCredential userCredential =
+        await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return userCredential.user;
   }
 
   Future<User?> signInWithGoogle() async {
@@ -45,62 +82,47 @@ class UserService {
   }
 
   Future<User?> signInWithKakao() async {
-    try {
-      late Kakao.OAuthToken token;
+    late Kakao.OAuthToken token;
 
-      if (await Kakao.isKakaoTalkInstalled()) {
-        try {
-          token = await Kakao.UserApi.instance.loginWithKakaoTalk();
-          print('카카오톡으로 로그인 성공');
-        } catch (error) {
-          print('카카오톡으로 로그인 실패 $error');
-
-          // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-          // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
-          if (error is PlatformException && error.code == 'CANCELED') {
-            return null;
-          }
-          // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-          try {
-            token = await Kakao.UserApi.instance.loginWithKakaoAccount();
-            print('카카오계정으로 로그인 성공');
-          } catch (error) {
-            print('카카오계정으로 로그인 실패 $error');
-          }
+    if (await Kakao.isKakaoTalkInstalled()) {
+      try {
+        // 카카오 앱 로그인
+        token = await Kakao.UserApi.instance.loginWithKakaoTalk();
+      } catch (error) {
+        // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
+        // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
+        if (error is PlatformException && error.code == 'CANCELED') {
+          return null;
         }
-      } else {
         try {
+          // 카카오 계정 로그인
           token = await Kakao.UserApi.instance.loginWithKakaoAccount();
-          print('카카오계정으로 로그인 성공');
         } catch (error) {
-          print('카카오계정으로 로그인 실패 $error');
+          return null;
         }
       }
-
-      Kakao.User kakaoUser = await Kakao.UserApi.instance.me();
-
-      print({
-        'uid': kakaoUser.id.toString(),
-        'displayName': kakaoUser.kakaoAccount?.profile?.nickname,
-        'email': kakaoUser.kakaoAccount?.email,
-        'photoURL': kakaoUser.kakaoAccount?.profile?.profileImageUrl
-      });
-
-      String kakaoCustomToken = await _getKakaoCustomTokenFromCloudFunctions({
-        'uid': kakaoUser.id.toString(),
-        'displayName': kakaoUser.kakaoAccount?.profile?.nickname,
-        'email': kakaoUser.kakaoAccount?.email ?? "",
-        'photoURL': kakaoUser.kakaoAccount?.profile?.profileImageUrl
-      });
-
-      final UserCredential userCredential =
-          await _auth.signInWithCustomToken(kakaoCustomToken);
-
-      return userCredential.user;
-    } catch (e) {
-      print(e);
-      return null;
+    } else {
+      // 카카오 계정 로그인
+      try {
+        token = await Kakao.UserApi.instance.loginWithKakaoAccount();
+      } catch (error) {
+        return null;
+      }
     }
+
+    Kakao.User kakaoUser = await Kakao.UserApi.instance.me();
+
+    String kakaoCustomToken = await _getKakaoCustomTokenFromCloudFunctions({
+      'uid': kakaoUser.id.toString(),
+      'displayName': kakaoUser.kakaoAccount?.profile?.nickname,
+      'email': kakaoUser.kakaoAccount?.email!,
+      'photoURL': kakaoUser.kakaoAccount?.profile?.profileImageUrl
+    });
+
+    final UserCredential userCredential =
+        await _auth.signInWithCustomToken(kakaoCustomToken);
+
+    return userCredential.user;
   }
 
   Future<String> _getKakaoCustomTokenFromCloudFunctions(
@@ -110,7 +132,6 @@ class UserService {
             'https://us-central1-uni-talk-81f81.cloudfunctions.net/createKakaoCustomToken'),
         body: user);
 
-    print(customTokenResponse.body);
     return customTokenResponse.body;
   }
 
@@ -134,5 +155,24 @@ class UserService {
       print(e);
       return null;
     }
+  }
+
+  Future<void> signOut() async {
+    if (_auth.currentUser != null) {
+      // 로그아웃 시 사용자가 어떤 서비스로 로그인했는지 확인하고 로그아웃 처리를 추가합니다.
+      final providerId = _auth.currentUser!.providerData[0].providerId;
+      switch (providerId) {
+        case 'google.com':
+          await _googleSignIn.signOut();
+          break;
+        case 'kakao.com':
+          await Kakao.UserApi.instance.logout();
+          break;
+        case 'apple.com':
+          // Apple 로그아웃에 대한 명시적인 API는 없습니다.
+          break;
+      }
+    }
+    await _auth.signOut();
   }
 }
