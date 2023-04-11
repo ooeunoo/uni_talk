@@ -1,5 +1,12 @@
+import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uni_talk/config/chat/category.dart';
+import 'package:uni_talk/config/chat/type.dart';
+import 'package:uni_talk/models/chat_room.dart';
+import 'package:uni_talk/providers/chat_provider.dart';
+import 'package:uni_talk/providers/user_provider.dart';
 import 'package:uni_talk/screens/chat/widgets/chat_item.dart';
 
 class ChatHomeScreen extends StatefulWidget {
@@ -12,6 +19,9 @@ class ChatHomeScreen extends StatefulWidget {
 class _ChatHomeScreenState extends State<ChatHomeScreen> {
   String selectedCategory = 'ALL';
 
+  late UserProvider _userProvider;
+  late ChatProvider _chatProvider;
+
   @override
   final List<String> categories = [
     'ALL',
@@ -19,6 +29,38 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
     'Accorions',
     'Icons',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _userProvider = Provider.of<UserProvider>(context, listen: false);
+    _chatProvider = Provider.of<ChatProvider>(context, listen: false);
+  }
+
+  // TODO: delete
+  void _createRandomChatRoom() {
+    final faker = Faker();
+    final currentUser = _userProvider.currentUser;
+    if (currentUser == null) return;
+
+    final randomChatRoom = ChatRoom(
+      id: '',
+      userId: currentUser.uid,
+      title: faker.lorem.sentence(),
+      image: 'https://source.unsplash.com/random/640x480', // 랜덤 이미지 URL 생성
+      type: ChatRoomType
+          .values[faker.randomGenerator.integer(ChatRoomType.values.length)],
+      category: ChatRoomCategory.values[
+          faker.randomGenerator.integer(ChatRoomCategory.values.length)],
+    );
+
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    chatProvider.createChatRoom(randomChatRoom);
+  }
+
+  Future<void> _refreshChatRooms() async {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,10 +135,44 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
 
           // Chat list
           Expanded(
-            child: ListView.builder(
-              itemCount: 20, // replace with the actual number of chats
-              itemBuilder: (BuildContext context, int index) {
-                return const ChatItem();
+            child: StreamBuilder<List<ChatRoomWithLastMessage>>(
+              stream: _chatProvider.getChatRoomsByUserId(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<ChatRoomWithLastMessage>> snapshot) {
+                if (snapshot.hasError) {
+                  return const Center(
+                      child: Text('Error: Could not load chat rooms.'));
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CupertinoActivityIndicator());
+                }
+
+                List<ChatRoomWithLastMessage> chatRooms = snapshot.data!;
+
+                return CustomScrollView(
+                  slivers: [
+                    CupertinoSliverRefreshControl(
+                      onRefresh: _refreshChatRooms,
+                    ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                          ChatRoomWithLastMessage chatRoomWithLastMessage =
+                              chatRooms[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: ChatItem(
+                              chatRoom: chatRoomWithLastMessage.chatRoom,
+                              lastMessage: chatRoomWithLastMessage.lastMessage,
+                            ),
+                          );
+                        },
+                        childCount: chatRooms.length,
+                      ),
+                    ),
+                  ],
+                );
               },
             ),
           ),
@@ -104,7 +180,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // 클릭시 실행될 동작을 여기에 작성합니다.
+          _createRandomChatRoom();
         },
         backgroundColor: theme.primaryColor,
         child: const Icon(CupertinoIcons.add),

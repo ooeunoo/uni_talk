@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:uni_talk/providers/user_provider.dart';
-import 'package:uni_talk/screens/auth/login_screen.dart';
-import 'package:uni_talk/screens/main_screen.dart';
+import 'package:uni_talk/screens/auth/auth_middleware_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,28 +13,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(
-      const Duration(seconds: 3),
-      () {
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        print('currentUser ${userProvider.currentUser}');
+    Future.delayed(Duration.zero, () {
+      _navigateToAuthBasedScreens(context);
+    });
+  }
 
-        if (userProvider.currentUser == null) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginScreen(),
-            ),
-          );
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MainScreen(),
-            ),
-          );
-        }
-      },
+  void _navigateToAuthBasedScreens(BuildContext context) async {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AuthMiddleWareScreen(),
+      ),
     );
   }
 

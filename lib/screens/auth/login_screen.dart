@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uni_talk/config/auth_platform.dart';
+import 'package:uni_talk/config/auth_provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uni_talk/screens/auth/signup_screen.dart';
-import 'package:uni_talk/screens/main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,30 +13,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  Future<Map<String, dynamic>> _handleLogin(AuthPlatform platform) async {
+  Future<void> _handleLogin(AuthProvider platform) async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    User? user = await userProvider.signIn(platform);
-
-    if (user != null) {
-      bool isRegistered =
-          await userProvider.userService.isUserRegistered(user.uid);
-      if (isRegistered) {
-        return {"isRegistered": isRegistered, "user": user};
-      }
-    }
-    return {"isRegistered": false, "user": user};
-  }
-
-  void _navigateToNextScreen(User? user, bool isRegistered) {
-    if (user == null) return;
-
-    if (isRegistered) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const MainScreen()));
-    } else {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const SignUpScreen()));
-    }
+    await userProvider.signIn(platform);
   }
 
   @override
@@ -68,12 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.center,
                 child: GestureDetector(
                   onTap: () async {
-                    Map<String, dynamic> result =
-                        await _handleLogin(AuthPlatform.Kakao);
-
-                    User? user = result['user'];
-                    bool isRegistered = result['isRegistered'];
-                    _navigateToNextScreen(user, isRegistered);
+                    await _handleLogin(AuthProvider.kakao);
                   },
                   child: Image.asset(
                     'assets/images/social/kakao_login_button.png',
@@ -86,12 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.center,
                 child: GestureDetector(
                   onTap: () async {
-                    Map<String, dynamic> result =
-                        await _handleLogin(AuthPlatform.Apple);
-
-                    User? user = result['user'];
-                    bool isRegistered = result['isRegistered'];
-                    _navigateToNextScreen(user, isRegistered);
+                    await _handleLogin(AuthProvider.apple);
                   },
                   child: Image.asset(
                     'assets/images/social/apple_login_button.png',
@@ -104,12 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.center,
                 child: GestureDetector(
                     onTap: () async {
-                      Map<String, dynamic> result =
-                          await _handleLogin(AuthPlatform.Google);
-
-                      User? user = result['user'];
-                      bool isRegistered = result['isRegistered'];
-                      _navigateToNextScreen(user, isRegistered);
+                      await _handleLogin(AuthProvider.google);
                     },
                     child: Container(
                       decoration: BoxDecoration(

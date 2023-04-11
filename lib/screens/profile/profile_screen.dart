@@ -34,12 +34,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(userProvider.currentUser?.displayName ?? 'Anonymous',
+                      Text(user?.displayName ?? 'Anonymous',
                           style: const TextStyle(fontSize: 24)),
                       const SizedBox(
                         height: 8,
                       ),
-                      _buildAuthProviderChip(user),
+                      // _buildAuthProviderChip(user),
                     ],
                   )
                 ],
@@ -50,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ElevatedButton(
                   child: const Text('로그아웃하기'),
                   onPressed: () async {
-                    // await userProvider.signOut();
+                    await userProvider.signOut();
                   },
                 ),
               )
@@ -59,33 +59,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ));
   }
 
-  Widget _buildAuthProviderChip(User? user) {
-    if (user == null) {
-      return const Chip(
-        avatar: Icon(Icons.person),
-        label: Text(''),
-      );
-    }
-    String providerName = user.providerData[0].providerId.split('.').first;
-    IconData providerIcon;
+  // Widget _buildAuthProviderChip(User? user) {
+  //   if (user == null) {
+  //     return const Chip(
+  //       avatar: Icon(Icons.person),
+  //       label: Text(''),
+  //     );
+  //   }
+  //   String providerName = user.providerData[0].providerId.split('.').first;
+  //   IconData providerIcon;
 
-    switch (providerName) {
-      case 'google':
-        providerIcon = Icons.login_outlined;
-        break;
-      case 'kakao':
-        providerIcon = Icons.login_outlined; // 카카오의 공식 아이콘이 없음
-        break;
-      case 'apple':
-        providerIcon = Icons.login_outlined; // 애플의 공식 아이콘이 없음
-        break;
-      default:
-        providerIcon = Icons.person;
-    }
+  //   switch (providerName) {
+  //     case 'google':
+  //       providerIcon = Icons.login_outlined;
+  //       break;
+  //     case 'kakao':
+  //       providerIcon = Icons.login_outlined; // 카카오의 공식 아이콘이 없음
+  //       break;
+  //     case 'apple':
+  //       providerIcon = Icons.login_outlined; // 애플의 공식 아이콘이 없음
+  //       break;
+  //     default:
+  //       providerIcon = Icons.person;
+  //   }
 
-    return Chip(
-      avatar: Icon(providerIcon),
-      label: Text(providerName),
-    );
-  }
+  //   return Chip(
+  //     avatar: Icon(providerIcon),
+  //     label: Text(providerName),
+  //   );
+  // }
 }

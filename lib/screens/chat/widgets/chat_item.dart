@@ -1,44 +1,103 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:uni_talk/models/chat_message.dart';
+import 'package:uni_talk/models/chat_room.dart';
+import 'package:uni_talk/screens/chat/chat_screen.dart';
+import 'package:uni_talk/utils/navigate.dart';
 
-class ChatItem extends StatefulWidget {
-  const ChatItem({super.key});
+class ChatItem extends StatelessWidget {
+  final ChatRoom chatRoom;
+  final ChatMessage? lastMessage;
 
-  @override
-  State<ChatItem> createState() => _ChatItemState();
-}
+  const ChatItem({
+    super.key,
+    required this.chatRoom,
+    required this.lastMessage,
+  });
 
-class _ChatItemState extends State<ChatItem> {
-  Color backgroundColor = Colors.white;
+  String getChatTime() {
+    DateFormat timeFormat = DateFormat('hh:mm'); // 시간 포맷 변경
+
+    String lastMessageTime = lastMessage != null
+        ? timeFormat.format(lastMessage!.createTime.toDate())
+        : '';
+
+    // 지난 시간을 계산하는 로직 추가
+    DateTime now = DateTime.now();
+    DateTime messageTime = lastMessage?.createTime.toDate() ?? now;
+    int daysAgo = now.difference(messageTime).inDays;
+
+    String displayTime = '';
+    if (daysAgo == 0) {
+      // 오늘
+      displayTime = lastMessageTime;
+    } else if (daysAgo == 1) {
+      // 어제
+      displayTime = 'Yesterday';
+    } else {
+      // n일 전
+      displayTime = '$daysAgo days ago';
+    }
+    return displayTime;
+  }
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-    double screenHeight = MediaQuery.of(context).size.height;
 
     return InkWell(
-      onTapDown: (details) {
-        setState(() {
-          backgroundColor = Colors.grey[100]!;
-        });
-      },
-      onTapUp: (details) {
-        setState(() {
-          backgroundColor = Colors.white;
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          backgroundColor = Colors.white;
-        });
+      onTap: () async {
+        navigateTo(
+            context, ChatScreen(chatRoom: chatRoom), TransitionType.slideLeft);
       },
       child: Container(
-        height: 100,
-        color: backgroundColor,
-        child: const Center(
-          child: Text('Chat item '),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            if (chatRoom.image != null && chatRoom.image!.isNotEmpty)
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: NetworkImage(chatRoom.image!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    chatRoom.title,
+                    style: theme.textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    lastMessage?.message ?? 'No messages yet',
+                    style: theme.textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 15),
+              child: Text(
+                getChatTime(),
+                style: theme.textTheme.bodySmall,
+              ),
+            )
+          ],
         ),
       ),
     );
   }
 }
-//867429470268-hv122ij9rkkg9qi940dd868hct8p8ig1.apps.googleusercontent.com
