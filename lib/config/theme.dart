@@ -33,16 +33,23 @@ final CustomTheme lightThemeData = CustomTheme(
             fontFamily: 'IBMPlexSansKR',
             fontWeight: FontWeight.bold),
         headlineSmall: TextStyle(color: Color(0xFF697EC0)),
-        titleLarge: TextStyle(color: Color(0xFF829FCE)),
-        titleMedium: TextStyle(color: Color(0xFF000000), fontSize: 18),
+        titleLarge: TextStyle(color: Color(0xFF829FCE), fontSize: 22),
+        titleMedium: TextStyle(
+            color: Color(0xFF000000),
+            fontSize: 22,
+            fontWeight: FontWeight.w700),
+        titleSmall: TextStyle(
+            color: Color(0xFF000000),
+            fontSize: 16,
+            fontWeight: FontWeight.w600),
         bodyLarge: TextStyle(color: Color(0xFF697EC0)),
         bodyMedium: TextStyle(color: Color(0xFF829FCE)),
-        bodySmall: TextStyle(color: Color(0xFF817F7F), fontSize: 12)),
+        bodySmall: TextStyle(color: Color(0xFF817F7F), fontSize: 14)),
     buttonTheme: const ButtonThemeData(
       buttonColor: Color(0xFF9BC0DC),
       textTheme: ButtonTextTheme.primary,
     ),
-    iconTheme: const IconThemeData(color: Color(0xFF697EC0)),
+    iconTheme: const IconThemeData(color: Color.fromARGB(255, 0, 0, 0)),
     inputDecorationTheme: const InputDecorationTheme(
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFF829FCE)),
@@ -94,7 +101,7 @@ final CustomTheme darkThemeData = CustomTheme(
       buttonColor: Color(0xFF9BC0DC),
       textTheme: ButtonTextTheme.primary,
     ),
-    iconTheme: const IconThemeData(color: Color(0xFF697EC0)),
+    iconTheme: const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
     inputDecorationTheme: const InputDecorationTheme(
       focusedBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFF829FCE)),

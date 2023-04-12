@@ -46,6 +46,7 @@ dependencies:
   google_fonts: ^4.0.3
   faker: ^2.1.0  # should be delete
   intl: ^0.17.0
+  emoji_picker_flutter: ^1.5.4
 
 dev_dependencies:
   flutter_test:

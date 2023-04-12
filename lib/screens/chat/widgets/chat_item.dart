@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
-import 'package:uni_talk/screens/chat/chat_screen.dart';
+import 'package:uni_talk/screens/chat/chat2_screen.dart';
 import 'package:uni_talk/utils/navigate.dart';
 
 class ChatItem extends StatelessWidget {
@@ -47,8 +47,9 @@ class ChatItem extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        navigateTo(
-            context, ChatScreen(chatRoom: chatRoom), TransitionType.slideLeft);
+        navigateTo(context, const ChatterScreen(), TransitionType.slideLeft);
+        // navigateTo(
+        //     context, ChatScreen(chatRoom: chatRoom), TransitionType.slideLeft);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -74,7 +75,7 @@ class ChatItem extends StatelessWidget {
                 children: [
                   Text(
                     chatRoom.title,
-                    style: theme.textTheme.titleMedium,
+                    style: theme.textTheme.titleSmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
