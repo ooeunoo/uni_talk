@@ -1,6 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:uni_talk/config/chat/message_sender.dart';
+import 'package:uni_talk/config/theme.dart';
+import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
+import 'package:uni_talk/models/custom_theme.dart';
+import 'package:uni_talk/providers/chat_provider.dart';
+import 'package:uni_talk/screens/chat/widgets/chat_stream.dart';
+
+String? messageText;
 
 class ChatScreen extends StatefulWidget {
   final ChatRoom chatRoom;
@@ -12,163 +19,144 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  bool _showEmojiPicker = false;
-  bool _showSendButton = false;
-  final FocusNode _messageFocusNode = FocusNode();
-  final TextEditingController _messageController = TextEditingController();
+  late ChatRoom chatRoom;
+  late ChatProvider chatProvider;
+
+  final chatMsgTextController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _messageFocusNode.addListener(_onMessageFocusChanged);
-  }
 
-  @override
-  void dispose() {
-    _messageFocusNode.dispose();
-    _messageController.dispose();
-    super.dispose();
-  }
-
-  void _onMessageFocusChanged() {
-    setState(() {
-      // Update the UI when the input field gains or loses focus
-    });
-  }
-
-  void _toggleEmojiPicker() {
-    setState(() {
-      _showEmojiPicker = !_showEmojiPicker;
-    });
-  }
-
-  void _toggleSendButton(bool show) {
-    setState(() {
-      _showSendButton = show;
-    });
+    chatRoom = widget.chatRoom;
+    chatProvider = ChatProvider();
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
+    CustomTheme theme = getThemeData(Theme.of(context).brightness);
 
     return Scaffold(
       appBar: AppBar(
+        iconTheme: theme.chatRoomAppBarIcon,
         elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        flexibleSpace: SafeArea(
+        bottom: PreferredSize(
+          preferredSize: const Size(25, 10),
           child: Container(
-            padding: const EdgeInsets.only(right: 16),
-            child: Row(
-              children: <Widget>[
-                CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: Icon(
-                      CupertinoIcons.back,
-                      color: theme.appBarTheme.iconTheme?.color!,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    }),
-                const SizedBox(
-                  width: 2,
-                ),
-                CircleAvatar(
-                  backgroundImage: NetworkImage(widget.chatRoom.image!),
-                  maxRadius: 20,
-                ),
-                const SizedBox(
-                  width: 12,
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                          widget.chatRoom.title.length > 10
-                              ? '${widget.chatRoom.title.substring(0, 10)}∙∙∙'
-                              : widget.chatRoom.title,
-                          overflow: TextOverflow.clip,
-                          style: theme.textTheme.titleSmall),
-                      const SizedBox(
-                        height: 6,
-                      ),
-                      Text(
-                        "Online",
-                        style: TextStyle(
-                            color: Colors.grey.shade600, fontSize: 13),
-                      ),
-                    ],
-                  ),
-                ),
-                CupertinoButton(
-                  onPressed: () {},
-                  padding: EdgeInsets.zero,
-                  child: Icon(
-                    CupertinoIcons.ellipsis,
-                    color: theme.appBarTheme.iconTheme?.color!,
-                  ),
-                )
-              ],
+            decoration: BoxDecoration(
+                color: Colors.blue, borderRadius: BorderRadius.circular(20)),
+            constraints: const BoxConstraints.expand(height: 1),
+            child: LinearProgressIndicator(
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              backgroundColor: Colors.blue[100],
             ),
           ),
         ),
+        backgroundColor: Colors.white10,
+        title: Row(
+          children: <Widget>[
+            Padding(
+                padding: const EdgeInsets.all(0),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(chatRoom.image!),
+                )),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  chatRoom.title.length > 10
+                      ? '${chatRoom.title.substring(0, 10)} ∙∙∙'
+                      : chatRoom.title,
+                  overflow: TextOverflow.clip,
+                  style: theme.chatRoomAppBarTitle,
+                ),
+                // Text('by ishandeveloper', style: theme.chatRoomAppBarSubTitle)
+              ],
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          GestureDetector(
+            child: const Icon(Icons.more_vert),
+          )
+        ],
       ),
-      body: Stack(
+      // drawer: Drawer(
+      //   child: ListView(
+      //     children: <Widget>[
+      //       UserAccountsDrawerHeader(
+      //         decoration: BoxDecoration(
+      //           color: Colors.deepPurple[900],
+      //         ),
+      //         accountName: Text(username ?? ""),
+      //         accountEmail: Text(email ?? ""),
+      //         currentAccountPicture: const CircleAvatar(
+      //           backgroundImage: NetworkImage(
+      //               "https://cdn.clipart.email/93ce84c4f719bd9a234fb92ab331bec4_frisco-specialty-clinic-vail-health_480-480.png"),
+      //         ),
+      //         onDetailsPressed: () {},
+      //       ),
+      //       ListTile(
+      //         leading: const Icon(Icons.exit_to_app),
+      //         title: const Text("Logout"),
+      //         subtitle: const Text("Sign out of this account"),
+      //         onTap: () async {
+      //           await _auth.signOut();
+      //           Navigator.pushReplacementNamed(context, '/');
+      //         },
+      //       ),
+      //     ],
+      //   ),
+      // ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Container(
-              padding: const EdgeInsets.only(left: 10, bottom: 10, top: 10),
-              height: 60,
-              width: double.infinity,
-              color: Colors.white,
-              child: Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      height: 30,
-                      width: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue,
-                        borderRadius: BorderRadius.circular(30),
+          ChatStream(),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: Material(
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.white,
+                    elevation: 5,
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
+                      child: TextField(
+                        onChanged: (value) {
+                          messageText = value;
+                        },
+                        controller: chatMsgTextController,
+                        decoration: theme.chatRoomMessageTextField,
                       ),
-                      child: const Icon(
-                        Icons.add,
+                    ),
+                  ),
+                ),
+                MaterialButton(
+                    shape: const CircleBorder(),
+                    color: Colors.blue,
+                    onPressed: () {
+                      ChatMessage message = ChatMessage(
+                          chatRoomId: chatRoom.id,
+                          sentBy: MessageSender.user,
+                          message: chatMsgTextController.text);
+                      chatMsgTextController.clear();
+
+                      chatProvider.sendMessage(message);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Icon(
+                        Icons.send,
                         color: Colors.white,
-                        size: 20,
                       ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  const Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                          hintText: "Write message...",
-                          hintStyle: TextStyle(color: Colors.black54),
-                          border: InputBorder.none),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  FloatingActionButton(
-                    onPressed: () {},
-                    backgroundColor: Colors.blue,
-                    elevation: 0,
-                    child: const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ),
-                ],
-              ),
+                    )),
+              ],
             ),
           ),
         ],

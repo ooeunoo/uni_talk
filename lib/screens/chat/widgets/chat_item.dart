@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
-import 'package:uni_talk/screens/chat/chat2_screen.dart';
+import 'package:uni_talk/screens/chat/chat_screen.dart';
 import 'package:uni_talk/utils/navigate.dart';
 
 class ChatItem extends StatelessWidget {
@@ -19,12 +19,12 @@ class ChatItem extends StatelessWidget {
     DateFormat timeFormat = DateFormat('hh:mm'); // 시간 포맷 변경
 
     String lastMessageTime = lastMessage != null
-        ? timeFormat.format(lastMessage!.createTime.toDate())
+        ? timeFormat.format(lastMessage!.createTime!.toDate())
         : '';
 
     // 지난 시간을 계산하는 로직 추가
     DateTime now = DateTime.now();
-    DateTime messageTime = lastMessage?.createTime.toDate() ?? now;
+    DateTime messageTime = lastMessage?.createTime!.toDate() ?? now;
     int daysAgo = now.difference(messageTime).inDays;
 
     String displayTime = '';
@@ -47,7 +47,12 @@ class ChatItem extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        navigateTo(context, const ChatterScreen(), TransitionType.slideLeft);
+        navigateTo(
+            context,
+            ChatterScreen(
+              chatRoom: chatRoom,
+            ),
+            TransitionType.slideLeft);
         // navigateTo(
         //     context, ChatScreen(chatRoom: chatRoom), TransitionType.slideLeft);
       },

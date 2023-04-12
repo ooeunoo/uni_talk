@@ -2,18 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uni_talk/config/chat/message_sender.dart';
 
 class ChatMessage {
-  final String id;
+  final String? id;
   final String chatRoomId;
   final MessageSender sentBy;
   final String message;
-  final Timestamp createTime;
+  final Timestamp? createTime;
 
   ChatMessage({
-    required this.id,
+    this.id,
     required this.chatRoomId,
     required this.sentBy,
     required this.message,
-    required this.createTime,
+    this.createTime,
   });
 
   factory ChatMessage.fromDocumentSnapshot(DocumentSnapshot doc) {

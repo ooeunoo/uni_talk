@@ -24,12 +24,6 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  ThemeData getThemeData(Brightness brightness) {
-    return brightness == Brightness.light
-        ? lightThemeData.themeData
-        : darkThemeData.themeData;
-  }
-
   @override
   Widget build(BuildContext context) {
     final FirebaseAuth auth = FirebaseAuth.instance;
@@ -43,8 +37,8 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: true,
           // debugShowMaterialGrid: true,
           title: 'Flutter Splash Screen Demo',
-          theme: getThemeData(Brightness.light),
-          darkTheme: getThemeData(Brightness.dark),
+          theme: getThemeData(Brightness.light).themeData,
+          darkTheme: getThemeData(Brightness.dark).themeData,
           themeMode: ThemeMode.system,
           home: const SplashScreen()),
     );
