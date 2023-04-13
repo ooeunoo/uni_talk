@@ -92,12 +92,9 @@ class _ChatScreenState extends State<ChatScreen>
         sentBy: MessageSender.chatgpt,
         message: answer);
 
-    toogleWritingChatGPT();
-
-    await Future.delayed(const Duration(milliseconds: 100));
-
     chatProvider.sendMessage(chatgptMessage);
-    // scrollToBottom();
+
+    toogleWritingChatGPT();
   }
 
   @override
