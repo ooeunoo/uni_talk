@@ -104,7 +104,6 @@ class UserService {
           await _auth.signInWithCredential(credential);
       return userCredential.user;
     } catch (e) {
-      print(e);
       return null;
     }
   }
@@ -180,7 +179,6 @@ class UserService {
           await _auth.signInWithCredential(oAuthCredential);
       return userCredential.user;
     } catch (e) {
-      print(e);
       return null;
     }
   }

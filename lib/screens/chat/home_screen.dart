@@ -139,7 +139,6 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
               stream: _chatProvider.getChatRoomsByUserId(),
               builder: (BuildContext context,
                   AsyncSnapshot<List<ChatRoomWithLastMessage>> snapshot) {
-                print(snapshot);
                 if (snapshot.hasError) {
                   return const Center(
                       child: Text('Error: Could not load chat rooms.'));

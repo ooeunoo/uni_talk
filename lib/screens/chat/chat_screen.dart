@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:uni_talk/config/chat/message_sender.dart';
 import 'package:uni_talk/config/theme.dart';
 import 'package:uni_talk/models/chat_message.dart';
@@ -7,7 +8,6 @@ import 'package:uni_talk/models/custom_theme.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/openai_provider.dart';
 import 'package:uni_talk/screens/chat/widgets/chat_stream.dart';
-import 'package:uni_talk/screens/chat/widgets/writing_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatRoom chatRoom;
@@ -18,13 +18,16 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen>
+    with SingleTickerProviderStateMixin {
   late ChatRoom chatRoom;
+  late AnimationController _animationController;
 
   final ChatProvider chatProvider = ChatProvider();
   final OpenAIProvider openAIProvider = OpenAIProvider();
 
   final chatMsgTextController = TextEditingController();
+  final ScrollController chatStreamScrollController = ScrollController();
 
   bool enableChat = true;
 
@@ -33,6 +36,17 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
 
     chatRoom = widget.chatRoom;
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   // 채팅 활성화 토글링
@@ -42,6 +56,16 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  // 최하단으로 스크롤
+  void scrollToBottom() {
+    chatStreamScrollController.animateTo(
+      0.0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  // 사용자 메시지 송신
   void sendMessageByUser() {
     if (chatMsgTextController.text.isEmpty) return;
 
@@ -54,10 +78,14 @@ class _ChatScreenState extends State<ChatScreen> {
     chatProvider.sendMessage(userMessage);
 
     receiveMessageByChatGPT(userMessage.message);
+
+    scrollToBottom();
   }
 
+  // ChatGPT 메시지 수신
   Future<void> receiveMessageByChatGPT(String message) async {
     toogleEnableChat();
+    _animationController.forward();
 
     String answer = await openAIProvider.askToChatGPT([], message);
 
@@ -66,9 +94,15 @@ class _ChatScreenState extends State<ChatScreen> {
         sentBy: MessageSender.chatgpt,
         message: answer);
 
+    _animationController.reverse();
     toogleEnableChat();
 
+    await Future.delayed(const Duration(
+        milliseconds:
+            100)); // Add a delay before hiding the SpinKitThreeBounce widget
+
     chatProvider.sendMessage(chatgptMessage);
+    scrollToBottom(); // Add this line to scroll to the bottom when receiving a message
   }
 
   @override
@@ -128,8 +162,26 @@ class _ChatScreenState extends State<ChatScreen> {
           ChatStream(
             key: ValueKey(chatRoom.id),
             chatRoom: chatRoom,
+            chatStreamScrollController: chatStreamScrollController,
           ),
-          if (!enableChat) const WrittingBubble(),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 0),
+            child: enableChat
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Padding(
+                          padding: EdgeInsets.all(12),
+                          child:
+                              SpinKitThreeBounce(size: 12, color: Colors.black),
+                        )
+                      ],
+                    )),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             child: Container(

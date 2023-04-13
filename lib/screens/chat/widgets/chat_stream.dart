@@ -6,8 +6,13 @@ import 'package:uni_talk/screens/chat/widgets/message_bubble.dart';
 
 class ChatStream extends StatefulWidget {
   final ChatRoom chatRoom;
+  final ScrollController chatStreamScrollController;
 
-  const ChatStream({super.key, required this.chatRoom});
+  const ChatStream({
+    super.key,
+    required this.chatRoom,
+    required this.chatStreamScrollController,
+  });
 
   @override
   State<ChatStream> createState() => _ChatStreamState();
@@ -15,6 +20,7 @@ class ChatStream extends StatefulWidget {
 
 class _ChatStreamState extends State<ChatStream> {
   late ChatRoom chatRoom;
+  late ScrollController chatStreamScrollController;
 
   ChatProvider chatProvider = ChatProvider();
 
@@ -22,19 +28,14 @@ class _ChatStreamState extends State<ChatStream> {
   void initState() {
     super.initState();
     chatRoom = widget.chatRoom;
+    chatStreamScrollController = widget.chatStreamScrollController;
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: chatProvider.streamChatMessages(chatRoom.id),
-      //  _firestore
-      //     .collection('chat_messages')
-      //     .where('chatRoomId', isEqualTo: chatRoom.id)
-      //     .orderBy('createTime')
-      //     .snapshots(),
       builder: (context, snapshot) {
-        print(snapshot);
         if (snapshot.hasData) {
           final messages = snapshot.data!.docs.reversed;
           List<MessageBubble> messageWidgets = [];
@@ -49,6 +50,7 @@ class _ChatStreamState extends State<ChatStream> {
           }
           return Expanded(
             child: ListView(
+              controller: chatStreamScrollController,
               reverse: true,
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
               children: messageWidgets,

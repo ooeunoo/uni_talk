@@ -38,7 +38,6 @@ class OpenAIService {
         })),
       );
 
-      // print(response.body);
       if (response.statusCode == 200) {
         final data = json.decode(utf8.decode(response.bodyBytes));
         final choices = data['choices'];
