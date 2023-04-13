@@ -68,6 +68,15 @@ class ChatService {
     });
   }
 
+  // 메시지 스트림
+  Stream<QuerySnapshot> streamChatMessages(String chatRoomId) {
+    return _firestore
+        .collection('chat_messages')
+        .where('chatRoomId', isEqualTo: chatRoomId)
+        .orderBy('createTime')
+        .snapshots();
+  }
+
   // 메시지 전송
   Future<void> sendMessage(ChatMessage chatMessage) async {
     await _firestore.collection('chat_messages').add({

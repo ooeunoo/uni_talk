@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
@@ -39,6 +40,11 @@ class ChatProvider with ChangeNotifier {
         type: type,
         category: category,
         ascending: ascending);
+  }
+
+  // 메시지 스트림하기
+  Stream<QuerySnapshot> streamChatMessages(String chatRoomId) {
+    return _chatService.streamChatMessages(chatRoomId);
   }
 
   // 메시지 전송하기

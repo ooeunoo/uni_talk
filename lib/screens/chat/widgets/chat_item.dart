@@ -49,7 +49,8 @@ class ChatItem extends StatelessWidget {
       onTap: () async {
         navigateTo(
             context,
-            ChatterScreen(
+            ChatScreen(
+              key: ValueKey(chatRoom.id),
               chatRoom: chatRoom,
             ),
             TransitionType.slideLeft);

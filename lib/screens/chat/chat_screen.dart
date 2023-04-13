@@ -5,9 +5,9 @@ import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/models/custom_theme.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
+import 'package:uni_talk/providers/openai_provider.dart';
 import 'package:uni_talk/screens/chat/widgets/chat_stream.dart';
-
-String? messageText;
+import 'package:uni_talk/screens/chat/widgets/writing_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatRoom chatRoom;
@@ -20,16 +20,55 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   late ChatRoom chatRoom;
-  late ChatProvider chatProvider;
+
+  final ChatProvider chatProvider = ChatProvider();
+  final OpenAIProvider openAIProvider = OpenAIProvider();
 
   final chatMsgTextController = TextEditingController();
+
+  bool enableChat = true;
 
   @override
   void initState() {
     super.initState();
 
     chatRoom = widget.chatRoom;
-    chatProvider = ChatProvider();
+  }
+
+  // 채팅 활성화 토글링
+  void toogleEnableChat() {
+    setState(() {
+      enableChat = !enableChat;
+    });
+  }
+
+  void sendMessageByUser() {
+    if (chatMsgTextController.text.isEmpty) return;
+
+    ChatMessage userMessage = ChatMessage(
+        chatRoomId: chatRoom.id,
+        sentBy: MessageSender.user,
+        message: chatMsgTextController.text);
+    chatMsgTextController.clear();
+
+    chatProvider.sendMessage(userMessage);
+
+    receiveMessageByChatGPT(userMessage.message);
+  }
+
+  Future<void> receiveMessageByChatGPT(String message) async {
+    toogleEnableChat();
+
+    String answer = await openAIProvider.askToChatGPT([], message);
+
+    ChatMessage chatgptMessage = ChatMessage(
+        chatRoomId: chatRoom.id,
+        sentBy: MessageSender.chatgpt,
+        message: answer);
+
+    toogleEnableChat();
+
+    chatProvider.sendMessage(chatgptMessage);
   }
 
   @override
@@ -82,81 +121,50 @@ class _ChatScreenState extends State<ChatScreen> {
           )
         ],
       ),
-      // drawer: Drawer(
-      //   child: ListView(
-      //     children: <Widget>[
-      //       UserAccountsDrawerHeader(
-      //         decoration: BoxDecoration(
-      //           color: Colors.deepPurple[900],
-      //         ),
-      //         accountName: Text(username ?? ""),
-      //         accountEmail: Text(email ?? ""),
-      //         currentAccountPicture: const CircleAvatar(
-      //           backgroundImage: NetworkImage(
-      //               "https://cdn.clipart.email/93ce84c4f719bd9a234fb92ab331bec4_frisco-specialty-clinic-vail-health_480-480.png"),
-      //         ),
-      //         onDetailsPressed: () {},
-      //       ),
-      //       ListTile(
-      //         leading: const Icon(Icons.exit_to_app),
-      //         title: const Text("Logout"),
-      //         subtitle: const Text("Sign out of this account"),
-      //         onTap: () async {
-      //           await _auth.signOut();
-      //           Navigator.pushReplacementNamed(context, '/');
-      //         },
-      //       ),
-      //     ],
-      //   ),
-      // ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          ChatStream(),
-          Container(
+          ChatStream(
+            key: ValueKey(chatRoom.id),
+            chatRoom: chatRoom,
+          ),
+          if (!enableChat) const WrittingBubble(),
+          Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: Material(
-                    borderRadius: BorderRadius.circular(50),
-                    color: Colors.white,
-                    elevation: 5,
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
-                      child: TextField(
-                        onChanged: (value) {
-                          messageText = value;
-                        },
-                        controller: chatMsgTextController,
-                        decoration: theme.chatRoomMessageTextField,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: Material(
+                      borderRadius: BorderRadius.circular(50),
+                      color: Colors.white,
+                      elevation: 5,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
+                        child: TextField(
+                          controller: chatMsgTextController,
+                          decoration: theme.chatRoomMessageTextField,
+                          enabled: enableChat,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                MaterialButton(
-                    shape: const CircleBorder(),
+                  const SizedBox(width: 10.0),
+                  IconButton(
                     color: Colors.blue,
                     onPressed: () {
-                      ChatMessage message = ChatMessage(
-                          chatRoomId: chatRoom.id,
-                          sentBy: MessageSender.user,
-                          message: chatMsgTextController.text);
-                      chatMsgTextController.clear();
-
-                      chatProvider.sendMessage(message);
+                      sendMessageByUser();
                     },
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Icon(
-                        Icons.send,
-                        color: Colors.white,
-                      ),
-                    )),
-              ],
+                    icon: const Icon(
+                      Icons.send,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -1,27 +1,47 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_talk/models/chat_message.dart';
+import 'package:uni_talk/models/chat_room.dart';
+import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/screens/chat/widgets/message_bubble.dart';
 
-class ChatStream extends StatelessWidget {
-  final _firestore = FirebaseFirestore.instance;
+class ChatStream extends StatefulWidget {
+  final ChatRoom chatRoom;
 
-  ChatStream({super.key});
+  const ChatStream({super.key, required this.chatRoom});
+
+  @override
+  State<ChatStream> createState() => _ChatStreamState();
+}
+
+class _ChatStreamState extends State<ChatStream> {
+  late ChatRoom chatRoom;
+
+  ChatProvider chatProvider = ChatProvider();
+
+  @override
+  void initState() {
+    super.initState();
+    chatRoom = widget.chatRoom;
+  }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _firestore
-          .collection('chat_messages')
-          .orderBy('createTime')
-          .snapshots(),
+      stream: chatProvider.streamChatMessages(chatRoom.id),
+      //  _firestore
+      //     .collection('chat_messages')
+      //     .where('chatRoomId', isEqualTo: chatRoom.id)
+      //     .orderBy('createTime')
+      //     .snapshots(),
       builder: (context, snapshot) {
+        print(snapshot);
         if (snapshot.hasData) {
           final messages = snapshot.data!.docs.reversed;
           List<MessageBubble> messageWidgets = [];
           for (var message in messages) {
             final chatMessage = ChatMessage.fromDocumentSnapshot(message);
             final msgBubble = MessageBubble(
+              key: ValueKey(chatMessage.id),
               chatMessage: chatMessage,
             );
 
@@ -35,6 +55,7 @@ class ChatStream extends StatelessWidget {
             ),
           );
         } else {
+          // 메시지를 불러오지 못했을때, <로딩>
           return const Center(
             child:
                 CircularProgressIndicator(backgroundColor: Colors.deepPurple),

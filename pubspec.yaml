@@ -47,6 +47,9 @@ dependencies:
   faker: ^2.1.0  # should be delete
   intl: ^0.17.0
   emoji_picker_flutter: ^1.5.4
+  uuid: ^3.0.7
+  http: ^0.13.5
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:
