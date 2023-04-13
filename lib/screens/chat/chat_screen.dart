@@ -20,7 +20,6 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen>
     with SingleTickerProviderStateMixin {
   late ChatRoom chatRoom;
-  late AnimationController _animationController;
 
   final ChatProvider chatProvider = ChatProvider();
   final OpenAIProvider openAIProvider = OpenAIProvider();
@@ -35,17 +34,6 @@ class _ChatScreenState extends State<ChatScreen>
     super.initState();
 
     chatRoom = widget.chatRoom;
-
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   // chatgpt 글 작성중 상태 토글링
@@ -71,7 +59,8 @@ class _ChatScreenState extends State<ChatScreen>
     ChatMessage userMessage = ChatMessage(
         chatRoomId: chatRoom.id,
         sentBy: MessageSender.user,
-        message: chatMsgTextController.text);
+        message: chatMsgTextController.text,
+        like: false);
     chatMsgTextController.clear();
 
     chatProvider.sendMessage(userMessage);
@@ -90,7 +79,8 @@ class _ChatScreenState extends State<ChatScreen>
     ChatMessage chatgptMessage = ChatMessage(
         chatRoomId: chatRoom.id,
         sentBy: MessageSender.chatgpt,
-        message: answer);
+        message: answer,
+        like: false);
 
     chatProvider.sendMessage(chatgptMessage);
 
@@ -101,101 +91,123 @@ class _ChatScreenState extends State<ChatScreen>
   Widget build(BuildContext context) {
     CustomTheme theme = getThemeData(Theme.of(context).brightness);
 
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: theme.chatRoomAppBarIcon,
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size(25, 10),
-          child: Container(
-            decoration: BoxDecoration(
-                color: Colors.blue, borderRadius: BorderRadius.circular(20)),
-            constraints: const BoxConstraints.expand(height: 1),
-            child: LinearProgressIndicator(
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-              backgroundColor: Colors.blue[100],
-            ),
-          ),
-        ),
-        backgroundColor: Colors.white10,
-        title: Row(
-          children: <Widget>[
-            Padding(
-                padding: const EdgeInsets.all(0),
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(chatRoom.image!),
-                )),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  chatRoom.title.length > 10
-                      ? '${chatRoom.title.substring(0, 10)} ∙∙∙'
-                      : chatRoom.title,
-                  overflow: TextOverflow.clip,
-                  style: theme.chatRoomAppBarTitle,
-                ),
-                // Text('by ishandeveloper', style: theme.chatRoomAppBarSubTitle)
-              ],
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          GestureDetector(
-            child: const Icon(Icons.more_vert),
-          )
-        ],
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          ChatStream(
-            key: ValueKey(chatRoom.id),
-            chatRoom: chatRoom,
-            chatStreamScrollController: chatStreamScrollController,
-            writingChatGPT: writingChatGPT,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    child: Material(
-                      borderRadius: BorderRadius.circular(50),
-                      color: Colors.white,
-                      elevation: 5,
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.only(left: 8.0, top: 2, bottom: 2),
-                        child: TextField(
-                          controller: chatMsgTextController,
-                          decoration: theme.chatRoomMessageTextField,
-                          // enabled: !wrtingChatGPT,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  IconButton(
+    return GestureDetector(
+        onHorizontalDragUpdate: (details) {
+          if (details.delta.dx > 50) {
+            // 드래그 거리가 20픽셀 이상일 때
+            Navigator.of(context).pop();
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            iconTheme: theme.chatRoomAppBarIcon,
+            elevation: 0,
+            bottom: PreferredSize(
+              preferredSize: const Size(25, 10),
+              child: Container(
+                decoration: BoxDecoration(
                     color: Colors.blue,
-                    onPressed: () {
-                      sendMessageByUser();
-                    },
-                    icon: const Icon(
-                      Icons.send,
-                    ),
-                  ),
-                ],
+                    borderRadius: BorderRadius.circular(20)),
+                constraints: const BoxConstraints.expand(height: 1),
+                child: LinearProgressIndicator(
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                  backgroundColor: Colors.blue[100],
+                ),
               ),
             ),
+            backgroundColor: Colors.white10,
+            title: Row(
+              children: <Widget>[
+                Padding(
+                    padding: const EdgeInsets.all(0),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(chatRoom.image!),
+                    )),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      chatRoom.title.length > 10
+                          ? '${chatRoom.title.substring(0, 10)} ∙∙∙'
+                          : chatRoom.title,
+                      overflow: TextOverflow.clip,
+                      style: theme.chatRoomAppBarTitle,
+                    ),
+                    // Text('by ishandeveloper', style: theme.chatRoomAppBarSubTitle)
+                  ],
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              GestureDetector(
+                child: const Icon(Icons.more_vert),
+              )
+            ],
           ),
-        ],
-      ),
-    );
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              ChatStream(
+                key: ValueKey(chatRoom.id),
+                chatRoom: chatRoom,
+                chatStreamScrollController: chatStreamScrollController,
+                writingChatGPT: writingChatGPT,
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: Material(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.white,
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 8.0, top: 2, bottom: 2),
+                            child: TextField(
+                              controller: chatMsgTextController,
+                              style: theme.chatRoomMessageTextField,
+                              decoration:
+                                  theme.chatRoomMessageHintTextField.copyWith(
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.transparent),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(50)),
+                                ),
+                                focusedBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                ),
+                                enabled: !writingChatGPT,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10.0),
+                      IconButton(
+                        color: Colors.blue,
+                        onPressed: () {
+                          sendMessageByUser();
+                        },
+                        icon: const Icon(
+                          Icons.send,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }

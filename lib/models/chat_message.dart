@@ -6,6 +6,7 @@ class ChatMessage {
   final String chatRoomId;
   final MessageSender sentBy;
   final String message;
+  final bool? like;
   final Timestamp? createTime;
 
   ChatMessage({
@@ -13,6 +14,7 @@ class ChatMessage {
     required this.chatRoomId,
     required this.sentBy,
     required this.message,
+    required this.like,
     this.createTime,
   });
 
@@ -22,6 +24,7 @@ class ChatMessage {
     final chatRoomId = data['chatRoomId'];
     final sentBy = getMessageSenderByString(data['sentBy']);
     final message = data['message'];
+    final like = data['like'];
     final createTime = data['createTime'];
 
     return ChatMessage(
@@ -29,6 +32,7 @@ class ChatMessage {
       chatRoomId: chatRoomId,
       sentBy: sentBy,
       message: message,
+      like: like,
       createTime: createTime,
     );
   }

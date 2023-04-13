@@ -62,7 +62,11 @@ final CustomTheme lightThemeData = CustomTheme(
         fontFamily: 'Poppins', fontSize: 16, color: Color(0xFF000000)),
     chatRoomAppBarSubTitle: const TextStyle(
         fontFamily: 'Poppins', fontSize: 12, color: Color(0xFF5E5D5D)),
-    chatRoomMessageTextField: const InputDecoration(
+    chatRoomMessageTextField: const TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 14,
+        color: Color.fromARGB(255, 0, 0, 0)),
+    chatRoomMessageHintTextField: const InputDecoration(
       contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       hintText: 'Send Message...',
       hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: 14),
@@ -124,7 +128,11 @@ final CustomTheme darkThemeData = CustomTheme(
         fontFamily: 'Poppins', fontSize: 16, color: Color(0xFFFFFFFF)),
     chatRoomAppBarSubTitle: const TextStyle(
         fontFamily: 'Poppins', fontSize: 8, color: Color(0xFF5E5D5D)),
-    chatRoomMessageTextField: const InputDecoration(
+    chatRoomMessageTextField: const TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 14,
+        color: Color.fromARGB(255, 0, 0, 0)),
+    chatRoomMessageHintTextField: const InputDecoration(
       contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       hintText: 'Send Message...',
       hintStyle: TextStyle(fontFamily: 'Poppins', fontSize: 14),

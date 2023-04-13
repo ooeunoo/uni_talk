@@ -59,30 +59,35 @@ class _MessageBubbleState extends State<MessageBubble> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: AnimatedCrossFade(
-                duration: const Duration(milliseconds: 300),
-                crossFadeState: isWriting
-                    ? CrossFadeState.showFirst
-                    : CrossFadeState.showSecond,
-                firstChild: SizedBox(
-                  width: isWriting ? 50 : 0,
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                    child: SpinKitThreeBounce(
-                        size: 15, color: isUser ? Colors.white : Colors.blue),
-                  ),
-                ),
-                secondChild: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                  child: Text(
-                    chatMessage.message,
-                    style: TextStyle(
-                      color: isUser ? Colors.white : Colors.blue,
-                      fontFamily: 'Poppins',
-                      fontSize: 15,
+                  duration: const Duration(milliseconds: 300),
+                  crossFadeState: isWriting
+                      ? CrossFadeState.showFirst
+                      : CrossFadeState.showSecond,
+                  firstChild: SizedBox(
+                    width: isWriting ? 50 : 0,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                      child: SpinKitThreeBounce(
+                          size: 15, color: isUser ? Colors.white : Colors.blue),
                     ),
                   ),
-                ),
-              ),
+                  secondChild: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                        child: Text(
+                          chatMessage.message,
+                          style: TextStyle(
+                            color: isUser ? Colors.white : Colors.blue,
+                            fontFamily: 'Poppins',
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                     
+                    ],
+                  )),
             ),
           ),
         ],
@@ -90,3 +95,14 @@ class _MessageBubbleState extends State<MessageBubble> {
     );
   }
 }
+ // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     IconButton(
+                      //         onPressed: () {},
+                      //         icon: const Icon(Icons.favorite_border)),
+                      //     IconButton(
+                      //         onPressed: () {},
+                      //         icon: const Icon(Icons.content_copy))
+                      //   ],
+                      // )
