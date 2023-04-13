@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:uni_talk/config/chat/message_sender.dart';
 import 'package:uni_talk/config/theme.dart';
 import 'package:uni_talk/models/chat_message.dart';
@@ -29,7 +28,7 @@ class _ChatScreenState extends State<ChatScreen>
   final chatMsgTextController = TextEditingController();
   final ScrollController chatStreamScrollController = ScrollController();
 
-  bool enableChat = true;
+  bool writingChatGPT = false;
 
   @override
   void initState() {
@@ -49,10 +48,10 @@ class _ChatScreenState extends State<ChatScreen>
     super.dispose();
   }
 
-  // 채팅 활성화 토글링
-  void toogleEnableChat() {
+  // chatgpt 글 작성중 상태 토글링
+  void toogleWritingChatGPT() {
     setState(() {
-      enableChat = !enableChat;
+      writingChatGPT = !writingChatGPT;
     });
   }
 
@@ -84,8 +83,7 @@ class _ChatScreenState extends State<ChatScreen>
 
   // ChatGPT 메시지 수신
   Future<void> receiveMessageByChatGPT(String message) async {
-    toogleEnableChat();
-    _animationController.forward();
+    toogleWritingChatGPT();
 
     String answer = await openAIProvider.askToChatGPT([], message);
 
@@ -94,15 +92,12 @@ class _ChatScreenState extends State<ChatScreen>
         sentBy: MessageSender.chatgpt,
         message: answer);
 
-    _animationController.reverse();
-    toogleEnableChat();
+    toogleWritingChatGPT();
 
-    await Future.delayed(const Duration(
-        milliseconds:
-            100)); // Add a delay before hiding the SpinKitThreeBounce widget
+    await Future.delayed(const Duration(milliseconds: 100));
 
     chatProvider.sendMessage(chatgptMessage);
-    scrollToBottom(); // Add this line to scroll to the bottom when receiving a message
+    // scrollToBottom();
   }
 
   @override
@@ -163,24 +158,7 @@ class _ChatScreenState extends State<ChatScreen>
             key: ValueKey(chatRoom.id),
             chatRoom: chatRoom,
             chatStreamScrollController: chatStreamScrollController,
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 0),
-            child: enableChat
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Padding(
-                          padding: EdgeInsets.all(12),
-                          child:
-                              SpinKitThreeBounce(size: 12, color: Colors.black),
-                        )
-                      ],
-                    )),
+            writingChatGPT: writingChatGPT,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -200,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen>
                         child: TextField(
                           controller: chatMsgTextController,
                           decoration: theme.chatRoomMessageTextField,
-                          enabled: enableChat,
+                          // enabled: !wrtingChatGPT,
                         ),
                       ),
                     ),

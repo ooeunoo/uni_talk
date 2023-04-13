@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:uni_talk/config/chat/message_sender.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/screens/chat/widgets/message_bubble.dart';
+import 'package:uni_talk/utils/string.dart';
 
 class ChatStream extends StatefulWidget {
   final ChatRoom chatRoom;
+  final bool writingChatGPT;
   final ScrollController chatStreamScrollController;
 
   const ChatStream({
     super.key,
     required this.chatRoom,
     required this.chatStreamScrollController,
+    required this.writingChatGPT,
   });
 
   @override
@@ -44,10 +48,26 @@ class _ChatStreamState extends State<ChatStream> {
             final msgBubble = MessageBubble(
               key: ValueKey(chatMessage.id),
               chatMessage: chatMessage,
+              isWriting: false,
             );
 
             messageWidgets.add(msgBubble);
           }
+
+          if (widget.writingChatGPT) {
+            final chatMessage = ChatMessage(
+                chatRoomId: chatRoom.id,
+                sentBy: MessageSender.chatgpt,
+                message: '');
+
+            messageWidgets.insert(
+                0,
+                MessageBubble(
+                    key: getValueKey(),
+                    chatMessage: chatMessage,
+                    isWriting: true));
+          }
+
           return Expanded(
             child: ListView(
               controller: chatStreamScrollController,

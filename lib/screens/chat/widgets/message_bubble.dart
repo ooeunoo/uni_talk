@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:uni_talk/config/chat/message_sender.dart';
 import 'package:uni_talk/models/chat_message.dart';
 
 class MessageBubble extends StatefulWidget {
   final ChatMessage chatMessage;
+  final bool isWriting;
 
-  const MessageBubble({super.key, required this.chatMessage});
+  const MessageBubble(
+      {super.key, required this.chatMessage, required this.isWriting});
 
   @override
   State<MessageBubble> createState() => _MessageBubbleState();
@@ -51,12 +54,20 @@ class _MessageBubbleState extends State<MessageBubble> {
             elevation: 5,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Text(
-                chatMessage.message,
-                style: TextStyle(
-                  color: isUser ? Colors.white : Colors.blue,
-                  fontFamily: 'Poppins',
-                  fontSize: 15,
+              child: AnimatedCrossFade(
+                duration: const Duration(milliseconds: 1000),
+                crossFadeState: widget.isWriting
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                firstChild:
+                    const SpinKitThreeBounce(size: 15, color: Colors.black),
+                secondChild: Text(
+                  chatMessage.message,
+                  style: TextStyle(
+                    color: isUser ? Colors.white : Colors.blue,
+                    fontFamily: 'Poppins',
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ),
