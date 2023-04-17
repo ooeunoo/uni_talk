@@ -3,14 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileHomeScreen extends StatefulWidget {
+  const ProfileHomeScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileHomeScreen> createState() => _ProfileHomeScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileHomeScreenState extends State<ProfileHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);

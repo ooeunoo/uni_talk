@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_talk/screens/chat/home_screen.dart';
-import 'package:uni_talk/screens/profile/profile_screen.dart';
+import 'package:uni_talk/screens/explorer/home_screen.dart';
+import 'package:uni_talk/screens/profile/home_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -15,8 +16,9 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const ChatHomeScreen(),
+    const ExplorerHomeScreen(),
     const Text(""),
-    const ProfileScreen()
+    const ProfileHomeScreen()
   ];
 
   @override
@@ -53,6 +55,15 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(
               _currentIndex == 1
+                  ? CupertinoIcons.square_grid_2x2_fill
+                  : CupertinoIcons.square_grid_2x2,
+              size: 28,
+            ),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              _currentIndex == 2
                   ? CupertinoIcons.heart_fill
                   : CupertinoIcons.heart,
               size: 28,
@@ -61,7 +72,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              _currentIndex == 2
+              _currentIndex == 3
                   ? CupertinoIcons.person_fill
                   : CupertinoIcons.person,
               size: 28,

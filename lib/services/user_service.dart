@@ -159,6 +159,7 @@ class UserService {
             'https://us-central1-uni-talk-81f81.cloudfunctions.net/createKakaoCustomToken'),
         body: user);
 
+    print(customTokenResponse.body);
     return customTokenResponse.body;
   }
 

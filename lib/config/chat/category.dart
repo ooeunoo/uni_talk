@@ -1,13 +1,13 @@
 enum ChatRoomCategory { sports, medical, unknown }
 
-String getChatRoomCategory(ChatRoomCategory category) {
+String? getChatRoomCategory(ChatRoomCategory category) {
   switch (category) {
     case ChatRoomCategory.sports:
       return 'sports';
     case ChatRoomCategory.medical:
       return 'medical';
     default:
-      return 'unknown';
+      return null;
   }
 }
 

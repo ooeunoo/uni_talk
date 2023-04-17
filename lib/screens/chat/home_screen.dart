@@ -1,13 +1,14 @@
-import 'package:faker/faker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uni_talk/config/chat/category.dart';
-import 'package:uni_talk/config/chat/type.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
+import 'package:uni_talk/screens/chat/create_chat_screen.dart';
+import 'package:uni_talk/screens/chat/search_screen.dart';
 import 'package:uni_talk/screens/chat/widgets/chat_item.dart';
+import 'package:uni_talk/utils/navigate.dart';
 
 class ChatHomeScreen extends StatefulWidget {
   const ChatHomeScreen({Key? key}) : super(key: key);
@@ -23,39 +24,10 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
   late ChatProvider _chatProvider;
 
   @override
-  final List<String> categories = [
-    'ALL',
-    'Personal',
-    'Accorions',
-    'Icons',
-  ];
-
-  @override
   void initState() {
     super.initState();
     _userProvider = Provider.of<UserProvider>(context, listen: false);
     _chatProvider = Provider.of<ChatProvider>(context, listen: false);
-  }
-
-  // TODO: delete
-  void _createRandomChatRoom() {
-    final faker = Faker();
-    final currentUser = _userProvider.currentUser;
-    if (currentUser == null) return;
-
-    final randomChatRoom = ChatRoom(
-      id: '',
-      userId: currentUser.uid,
-      title: faker.lorem.sentence(),
-      image: 'https://source.unsplash.com/random/640x480', // 랜덤 이미지 URL 생성
-      type: ChatRoomType
-          .values[faker.randomGenerator.integer(ChatRoomType.values.length)],
-      category: ChatRoomCategory.values[
-          faker.randomGenerator.integer(ChatRoomCategory.values.length)],
-    );
-
-    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    chatProvider.createChatRoom(randomChatRoom);
   }
 
   Future<void> _refreshChatRooms() async {
@@ -71,7 +43,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 80, // AppBar의 높이를 80으로 지정
+        toolbarHeight: 80,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -94,7 +66,10 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: IconButton(
               icon: const Icon(CupertinoIcons.search),
-              onPressed: () {},
+              onPressed: () {
+                navigateTo(
+                    context, const SearchScreen(), TransitionType.slideLeft);
+              },
             ),
           ),
         ],
@@ -102,73 +77,43 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
       ),
       body: Column(
         children: [
-          // Category list
-          SizedBox(
-            height: categoryHeight,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: categories.length,
-              itemBuilder: (BuildContext context, int index) {
-                String category = categories[index];
-                bool isSelected = category == selectedCategory;
-                return InkResponse(
-                  onTap: () {
-                    setState(() {
-                      selectedCategory = category;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      category,
-                      style: TextStyle(
-                        color: isSelected ? theme.primaryColor : Colors.grey,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-
           // Chat list
           Expanded(
-            child: StreamBuilder<List<ChatRoomWithLastMessage>>(
-              stream: _chatProvider.getChatRoomsByUserId(),
+            child: StreamBuilder(
+              stream: _chatProvider.streamChatRooms(),
               builder: (BuildContext context,
-                  AsyncSnapshot<List<ChatRoomWithLastMessage>> snapshot) {
-                if (snapshot.hasError) {
-                  return const Center(
-                      child: Text('Error: Could not load chat rooms.'));
-                }
-
+                  AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CupertinoActivityIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
-                List<ChatRoomWithLastMessage> chatRooms = snapshot.data!;
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text('No chat rooms available.'));
+                }
+
+                final chatRooms = snapshot.data!.docs;
+                List<ChatItem> chatItemWidgets = [];
+
+                for (var room in chatRooms) {
+                  final roomDoc = ChatRoom.fromDocumentSnapshot(room);
+                  final chatItem = ChatItem(
+                    key: ValueKey(room.id),
+                    chatRoom: roomDoc,
+                  );
+                  chatItemWidgets.add(chatItem);
+                }
 
                 return CustomScrollView(
-                  slivers: [
+                  slivers: <Widget>[
                     CupertinoSliverRefreshControl(
                       onRefresh: _refreshChatRooms,
                     ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (BuildContext context, int index) {
-                          ChatRoomWithLastMessage chatRoomWithLastMessage =
-                              chatRooms[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: ChatItem(
-                              chatRoom: chatRoomWithLastMessage.chatRoom,
-                              lastMessage: chatRoomWithLastMessage.lastMessage,
-                            ),
-                          );
+                          return chatItemWidgets[index];
                         },
-                        childCount: chatRooms.length,
+                        childCount: chatItemWidgets.length,
                       ),
                     ),
                   ],
@@ -180,7 +125,8 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _createRandomChatRoom();
+          navigateTo(context, const CreateChatScreen(), TransitionType.slideUp);
+          // _createRandomChatRoom();
         },
         backgroundColor: theme.primaryColor,
         child: const Icon(CupertinoIcons.add),

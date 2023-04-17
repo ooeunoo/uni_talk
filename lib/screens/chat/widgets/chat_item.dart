@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/screens/chat/chat_screen.dart';
+import 'package:uni_talk/screens/chat/role_chat_screen.dart';
 import 'package:uni_talk/utils/navigate.dart';
 
 class ChatItem extends StatelessWidget {
   final ChatRoom chatRoom;
-  final ChatMessage? lastMessage;
 
   const ChatItem({
     super.key,
     required this.chatRoom,
-    required this.lastMessage,
   });
 
   String getChatTime() {
     DateFormat timeFormat = DateFormat('hh:mm'); // 시간 포맷 변경
 
-    String lastMessageTime = lastMessage != null
-        ? timeFormat.format(lastMessage!.createTime!.toDate())
-        : '';
+    String lastMessageTime = timeFormat.format(chatRoom.modifiedTime!.toDate());
 
     // 지난 시간을 계산하는 로직 추가
     DateTime now = DateTime.now();
-    DateTime messageTime = lastMessage?.createTime!.toDate() ?? now;
+    DateTime messageTime = chatRoom.modifiedTime!.toDate();
     int daysAgo = now.difference(messageTime).inDays;
 
     String displayTime = '';
@@ -46,16 +42,26 @@ class ChatItem extends StatelessWidget {
     ThemeData theme = Theme.of(context);
 
     return InkWell(
-      onTap: () async {
-        navigateTo(
-            context,
-            ChatScreen(
-              key: ValueKey(chatRoom.id),
-              chatRoom: chatRoom,
-            ),
-            TransitionType.slideLeft);
-        // navigateTo(
-        //     context, ChatScreen(chatRoom: chatRoom), TransitionType.slideLeft);
+      onTap: ()  {
+        bool isRoleChat = chatRoom.roleChatId == null ? false : true;
+
+        if (isRoleChat) {
+          navigateTo(
+              context,
+              RoleChatScreen(
+                key: ValueKey(chatRoom.id),
+                chatRoom: chatRoom,
+              ),
+              TransitionType.slideLeft);
+        } else {
+          navigateTo(
+              context,
+              ChatScreen(
+                key: ValueKey(chatRoom.id),
+                chatRoom: chatRoom,
+              ),
+              TransitionType.slideLeft);
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -87,7 +93,7 @@ class ChatItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    lastMessage?.message ?? 'No messages yet',
+                    chatRoom.previewMessage ?? 'No messages yet',
                     style: theme.textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

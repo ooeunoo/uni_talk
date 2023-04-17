@@ -1,35 +1,41 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_talk/config/chat/message_sender.dart';
 import 'package:uni_talk/config/theme.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/models/custom_theme.dart';
+import 'package:uni_talk/models/role_chat.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/openai_provider.dart';
+import 'package:uni_talk/providers/role_chat_provider.dart';
 import 'package:uni_talk/screens/chat/widgets/message_bubble.dart';
 import 'package:uni_talk/utils/string.dart';
+import 'package:flutter/cupertino.dart';
 
-class ChatScreen extends StatefulWidget {
+class RoleChatScreen extends StatefulWidget {
   final ChatRoom chatRoom;
 
-  const ChatScreen({super.key, required this.chatRoom});
+  const RoleChatScreen({super.key, required this.chatRoom});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<RoleChatScreen> createState() => _RoleChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen>
+class _RoleChatScreenState extends State<RoleChatScreen>
     with SingleTickerProviderStateMixin {
   late ChatRoom chatRoom;
+  late RoleChat? roleChat;
 
   final ChatProvider chatProvider = ChatProvider();
+  final RoleChatProvider roleChatProvider = RoleChatProvider();
   final OpenAIProvider openAIProvider = OpenAIProvider();
 
   final chatMsgTextController = TextEditingController();
   final ScrollController chatStreamScrollController = ScrollController();
 
-  bool errorOfChatGPT = false;
+  List<ChatMessage> prevMessages = [];
+
+  bool errorOfChatGPT = false; // error: true,
   bool writingChatGPT = false;
 
   @override
@@ -37,6 +43,18 @@ class _ChatScreenState extends State<ChatScreen>
     super.initState();
 
     chatRoom = widget.chatRoom;
+
+    fetchRoleChat();
+  }
+
+  void fetchRoleChat() {
+    if (chatRoom.roleChatId != null) {
+      roleChatProvider.getRoleChat(chatRoom.roleChatId!).then((value) => {
+            setState(() {
+              roleChat = value;
+            })
+          });
+    }
   }
 
   // chatgpt 글 작성중 상태 토글링
@@ -84,7 +102,8 @@ class _ChatScreenState extends State<ChatScreen>
   Future<void> receiveMessageByChatGPT(String message) async {
     toogleWritingChatGPT();
 
-    String? answer = await openAIProvider.askToChatGPTForPersonal([], message);
+    String? answer = await openAIProvider.askToChatGPTForRole(
+        roleChat?.systemMessage, prevMessages, message);
 
     if (answer == null) {
       changeStateChatGPT(true);
@@ -167,8 +186,11 @@ class _ChatScreenState extends State<ChatScreen>
                 stream: chatProvider.streamChatMessages(chatRoom.id!),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
+                    // Existing chat messages
                     final messages = snapshot.data!.docs.reversed;
                     List<MessageBubble> messageWidgets = [];
+                    prevMessages = [];
+
                     for (var message in messages) {
                       final chatMessage =
                           ChatMessage.fromDocumentSnapshot(message);
@@ -179,9 +201,11 @@ class _ChatScreenState extends State<ChatScreen>
                       );
 
                       messageWidgets.add(msgBubble);
+                      prevMessages.add(chatMessage);
                     }
 
                     if (writingChatGPT) {
+                      // User is typing a message to ChatGPT
                       final chatMessage = ChatMessage(
                           chatRoomId: chatRoom.id!,
                           sentBy: MessageSender.chatgpt,
@@ -221,7 +245,7 @@ class _ChatScreenState extends State<ChatScreen>
                       ),
                     );
                   } else {
-                    // 메시지를 불러오지 못했을때, <로딩>
+                    // Loading indicator
                     return const Center(
                       child: CircularProgressIndicator(
                           backgroundColor: Colors.deepPurple),

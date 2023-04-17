@@ -54,13 +54,12 @@ chatGPT를 사용하여 역할 채팅을 하기위해 데이터가 필요해
 	"category": "", // 채팅의 인물 또는 역할에 대한 카테고리(politics, history, science, technology, healthAndMedicine, travel, music, movies, sports, fashion, financeAndEconomics, humanities, psychology, arts, selfDevelopment, education, environment, religion, cooking, careerAndJobCounseling)
 	"systemMessage": "", // 예시에서 보여준것과 같은 내용의 메시지야, 메시지의 마지막은 항상 "사용자의 질문에 (역할 또는 인물)처럼 답해줘." 라고 써줘
 	"role" : "", // 롤은 예시에서 심리상담가, 엘론머스크 처럼 인물 또는 역할 명이 들어가게해줘, 디테일하게 들어갔으면 좋겠어
-	"welcomMessage": "", //welcomMessage는 사용자가 채팅에 참여했을때 보여줄 메시지야. ChatGPT가 담당하는 인물이나 역할이 자신을 소개하거나 사용자에게 친근하게 다갈 수 있는 어필 문구를 넣어줘. 이모지도 들어가도 좋아. 조금 창의적으로 다양하게 표현해줘 
+	"welcomMessage": "", // welcomMessage는 사용자가 채팅에 참여했을때 보여줄 메시지야. ChatGPT가 담당하는 인물이나 역할이 자신을 소개하거나 사용자에게 친근하게 다갈 수 있는 어필 문구를 넣어줘. 이모지도 들어가도 좋아. 조금 창의적으로 다양하게 표현해줘 
 	"questions": [], //샘플 메시지는 사용자가 어떤 질문을 할지 모를때 추천할 만한 질문이 들어갈거야. 예를 들어, 취업 상담가라면 ["적성에 맞는 일이 무엇인지 잘 모르겠어요.", "이직을 하고 싶은데 어떤 곳을 가는 게 좋을까요?", "안정적인 일 vs 하고싶은 일, 어떤 걸 선택하는게 좋을까요?", ..]와 같이 사용자가 할만한 질문을 추천해줘. (최소 5개)
 	"image": null,
 }
 
 - 아래의 json 예시 데이터야.
-
 {
   "category": "healthAndMedicine",
   "systemMessage": "너는 사용자의 질문에 대해 정신건강이나 정서장애와 관련된 문제를 파악하고 상담을 진행해주며 사용자가 다시 건강하고 바른 생활을 해나갈 수 있도록 도와주는 심리 상담가야. 사용자의 질문에 심리 상담가처럼 답해줘.",

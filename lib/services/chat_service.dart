@@ -8,64 +8,61 @@ import 'package:uni_talk/models/chat_room.dart';
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  Future<ChatRoom?> getExistingChatRoom(
+      String userId, String roleChatId) async {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('chat_rooms')
+        .where('userId', isEqualTo: userId)
+        .where('roleChatId', isEqualTo: roleChatId)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return ChatRoom.fromDocumentSnapshot(querySnapshot.docs.first);
+    } else {
+      return null;
+    }
+  }
+
   // 채팅룸 생성
-  Future<void> createChatRoom(ChatRoom chatRoom) async {
-    await _firestore.collection('chat_rooms').add({
+  Future<ChatRoom> createChatRoom(ChatRoom chatRoom) async {
+    final docRef = await _firestore.collection('chat_rooms').add({
       'userId': chatRoom.userId,
+      'roleChatId': chatRoom.roleChatId,
       'title': chatRoom.title,
       'image': chatRoom.image,
       'type': getChatRoomType(chatRoom.type),
       'category': getChatRoomCategory(chatRoom.category),
-      'createTime': DateTime.now()
+      'previewMessage': null,
+      'createTime': DateTime.now(),
+      'modifiedTime': DateTime.now(),
     });
+
+    final newChatRoom = ChatRoom(
+      id: docRef.id,
+      roleChatId: chatRoom.roleChatId,
+      userId: chatRoom.userId,
+      title: chatRoom.title,
+      image: chatRoom.image,
+      type: chatRoom.type,
+      category: chatRoom.category,
+      previewMessage: null,
+    );
+
+    return newChatRoom;
   }
 
 // 채팅룸 목록(마지막 메시지를 포함)을 가져오기
-  Stream<List<ChatRoomWithLastMessage>> getChatRoomsByUserId({
+  Stream<QuerySnapshot> streamChatRooms({
     required String userId,
     String? title,
     String? type,
     String? category,
-    bool ascending = true,
   }) {
-    Query query =
-        _firestore.collection('chat_rooms').where('userId', isEqualTo: userId);
-
-    if (type != null && type.isNotEmpty) {
-      query = query.where('type', isEqualTo: type);
-    }
-
-    if (category != null && category.isNotEmpty) {
-      query = query.where('category', isEqualTo: category);
-    }
-
-    query = query.orderBy('createTime', descending: !ascending);
-
-    return query.snapshots().asyncMap((querySnapshot) async {
-      List<ChatRoomWithLastMessage> chatRoomWithLastMessages = [];
-
-      for (var chatRoomDoc in querySnapshot.docs) {
-        ChatRoom chatRoom = ChatRoom.fromDocumentSnapshot(chatRoomDoc);
-
-        QuerySnapshot lastMessageSnapshot = await FirebaseFirestore.instance
-            .collection('chat_messages')
-            .where('chatRoomId', isEqualTo: chatRoom.id)
-            .orderBy('createTime', descending: true)
-            .limit(1)
-            .get();
-
-        ChatMessage? lastMessage;
-        if (lastMessageSnapshot.docs.isNotEmpty) {
-          lastMessage =
-              ChatMessage.fromDocumentSnapshot(lastMessageSnapshot.docs.first);
-        }
-
-        chatRoomWithLastMessages.add(ChatRoomWithLastMessage(
-            chatRoom: chatRoom, lastMessage: lastMessage));
-      }
-
-      return chatRoomWithLastMessages;
-    });
+    return _firestore
+        .collection('chat_rooms')
+        .where('userId', isEqualTo: userId)
+        .orderBy('modifiedTime', descending: true)
+        .snapshots();
   }
 
   // 메시지 스트림
@@ -83,7 +80,36 @@ class ChatService {
       'chatRoomId': chatMessage.chatRoomId,
       'sentBy': getMessageSender(chatMessage.sentBy),
       'message': chatMessage.message,
+      'like': chatMessage.like,
       'createTime': DateTime.now(),
+    });
+    await updateChatRoomPreview(chatMessage.chatRoomId, chatMessage.message);
+  }
+
+  // 메시지 업데이트
+  Future<void> updateMessage(
+      String messageId, ChatMessage updatedChatMessage) async {
+    await _firestore.collection('chat_messages').doc(messageId).update({
+      'chatRoomId': updatedChatMessage.chatRoomId,
+      'sentBy': getMessageSender(updatedChatMessage.sentBy),
+      'message': updatedChatMessage.message,
+      'like': updatedChatMessage.like,
+    });
+    await updateChatRoomPreview(
+        updatedChatMessage.chatRoomId, updatedChatMessage.message);
+  }
+
+  // 채팅룸의 modifiedTime과 previewMessage 업데이트
+  Future<void> updateChatRoomPreview(
+      String chatRoomId, String previewMessage) async {
+    String shortenedPreviewMessage = previewMessage;
+
+    if (previewMessage.length > 30) {
+      shortenedPreviewMessage = previewMessage.substring(0, 30);
+    }
+    await _firestore.collection('chat_rooms').doc(chatRoomId).update({
+      'previewMessage': shortenedPreviewMessage,
+      'modifiedTime': DateTime.now(),
     });
   }
 }

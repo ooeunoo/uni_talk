@@ -9,32 +9,33 @@ import 'package:uni_talk/services/chat_service.dart';
 
 class ChatProvider with ChangeNotifier {
   final ChatService _chatService = ChatService();
+  final UserProvider _userProvider = UserProvider();
 
   // 채팅룸 생성하기
-  Future<void> createChatRoom(ChatRoom chatRoom) async {
-    await _chatService.createChatRoom(chatRoom);
+  Future<ChatRoom> createChatRoom(ChatRoom chatRoom) async {
+    final createdChatRoom = await _chatService.createChatRoom(chatRoom);
     notifyListeners();
+    return createdChatRoom;
   }
 
-  // 채팅룸 목록 가져오기
-  Stream<List<ChatRoomWithLastMessage>> getChatRoomsByUserId(
+  // 채팅룸 스트림하기
+  Stream<QuerySnapshot> streamChatRooms(
       {String? title, String? type, String? category, bool ascending = true}) {
-    try {
-      final currentUser = UserProvider().currentUser;
-
-      if (currentUser == null) {
-        return const Stream.empty();
-      }
-      return _chatService.getChatRoomsByUserId(
-          userId: currentUser.uid,
-          title: title,
-          type: type,
-          category: category,
-          ascending: ascending);
-    } catch (e) {
-      print(e);
+    final currentUser = _userProvider.currentUser;
+    if (currentUser == null) {
       return const Stream.empty();
     }
+
+    return _chatService.streamChatRooms(userId: currentUser.uid);
+  }
+
+  // 롤챗이 존재하는지
+  Future<ChatRoom?> getExistingChatRoom(
+      String userId, String roleChatId) async {
+    final existingChatRoom =
+        await _chatService.getExistingChatRoom(userId, roleChatId);
+    notifyListeners();
+    return existingChatRoom;
   }
 
   // 메시지 스트림하기
@@ -45,6 +46,13 @@ class ChatProvider with ChangeNotifier {
   // 메시지 전송하기
   Future<void> sendMessage(ChatMessage chatMessage) async {
     await _chatService.sendMessage(chatMessage);
+    notifyListeners();
+  }
+
+  // 메시지 업데이트하기
+  Future<void> updateMessage(
+      String messageId, ChatMessage updatedChatMessage) async {
+    await _chatService.updateMessage(messageId, updatedChatMessage);
     notifyListeners();
   }
 }

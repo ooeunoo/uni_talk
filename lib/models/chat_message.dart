@@ -6,7 +6,7 @@ class ChatMessage {
   final String chatRoomId;
   final MessageSender sentBy;
   final String message;
-  final bool? like;
+  final bool like;
   final Timestamp? createTime;
 
   ChatMessage({
@@ -34,6 +34,20 @@ class ChatMessage {
       message: message,
       like: like,
       createTime: createTime,
+    );
+  }
+
+  ChatMessage copyWith({
+    String? chatRoomId,
+    String? message,
+    MessageSender? sentBy,
+    bool? like,
+  }) {
+    return ChatMessage(
+      chatRoomId: chatRoomId ?? this.chatRoomId,
+      message: message ?? this.message,
+      sentBy: sentBy ?? this.sentBy,
+      like: like ?? this.like,
     );
   }
 }

@@ -1,16 +1,22 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:uni_talk/config/chat/message_sender.dart';
 import 'package:uni_talk/models/chat_message.dart';
+import 'package:uni_talk/providers/chat_provider.dart';
+import 'package:uni_talk/widgets/snackbar.dart';
 
 class MessageBubble extends StatefulWidget {
   final ChatMessage chatMessage;
   final bool isWriting;
 
-  const MessageBubble(
-      {super.key, required this.chatMessage, required this.isWriting});
+  const MessageBubble({
+    super.key,
+    required this.chatMessage,
+    required this.isWriting,
+  });
 
   @override
   State<MessageBubble> createState() => _MessageBubbleState();
@@ -19,12 +25,38 @@ class MessageBubble extends StatefulWidget {
 class _MessageBubbleState extends State<MessageBubble> {
   late ChatMessage chatMessage;
   late bool isWriting;
+  ChatProvider chatProvider = ChatProvider();
 
   @override
   void initState() {
     super.initState();
     chatMessage = widget.chatMessage;
     isWriting = widget.isWriting;
+  }
+
+  @override
+  void didUpdateWidget(MessageBubble oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget != widget) {
+      setState(() {
+        chatMessage = widget.chatMessage;
+      });
+    }
+  }
+
+  // 클립보드 복사하기
+  void _copyToClipboard() {
+    Clipboard.setData(ClipboardData(text: chatMessage.message));
+    showTopSnackBar(
+      context,
+      const Text("Copied to clipboard!", style: TextStyle(color: Colors.white)),
+    );
+  }
+
+  // 좋아요 토글
+  void _toogleLike() {
+    final updatedChatMessage = chatMessage.copyWith(like: !chatMessage.like);
+    ChatProvider().updateMessage(chatMessage.id!, updatedChatMessage);
   }
 
   @override
@@ -85,24 +117,31 @@ class _MessageBubbleState extends State<MessageBubble> {
                           ),
                         ),
                       ),
-                     
                     ],
                   )),
             ),
           ),
+          if (!isUser && !isWriting)
+            Row(
+              children: [
+                IconButton(
+                  icon: chatMessage.like
+                      ? const Icon(Icons.favorite, color: Colors.red)
+                      : const Icon(Icons.favorite_border),
+                  onPressed: () {
+                    _toogleLike();
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.content_copy),
+                  onPressed: () {
+                    _copyToClipboard();
+                  },
+                ),
+              ],
+            ),
         ],
       ),
     );
   }
 }
- // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     IconButton(
-                      //         onPressed: () {},
-                      //         icon: const Icon(Icons.favorite_border)),
-                      //     IconButton(
-                      //         onPressed: () {},
-                      //         icon: const Icon(Icons.content_copy))
-                      //   ],
-                      // )
