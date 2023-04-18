@@ -93,6 +93,7 @@ class _ExplorerHomeScreenState extends State<ExplorerHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Explorer"),
         elevation: 0,
       ),
       body: ListView(
@@ -187,7 +188,7 @@ class _ExplorerHomeScreenState extends State<ExplorerHomeScreen> {
   Widget buildRoleTile(RoleChat role) {
     return GestureDetector(
       onTap: () {
-// 채팅방을 열어야 할 때 처리를 여기에 추가합니다.
+        // 채팅방을 열어야 할 때 처리를 여기에 추가합니다.
         _handleRoleChatItemSelected(role);
       },
       child: Container(

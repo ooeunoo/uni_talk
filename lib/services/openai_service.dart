@@ -70,15 +70,11 @@ class OpenAIService {
         });
       }
 
+      print(systemMessage);
       Map<String, dynamic> body = {
         "model": getOepnAIModel(OpenAIModel.gpt3_5_turbo),
         "messages": [
-          // {"role": "system", "content": '$systemMessage'},
-          {
-            'role': 'system',
-            'content':
-                "You are a psychological counselor who identifies problems related to mental health or emotional disorders in response to the user's questions, conducts counseling, and helps the user live a healthy and upright life again. Like a counselor, you must respond kindly to any situation or question. Answer your questions from the point of view of a psychological counselor. Users should not know that you are ChatGPT."
-          },
+          {"role": "system", "content": systemMessage},
           ...formattedPrevMessages,
           {"role": "user", "content": prompt}
         ]

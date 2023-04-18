@@ -42,7 +42,7 @@ class ChatItem extends StatelessWidget {
     ThemeData theme = Theme.of(context);
 
     return InkWell(
-      onTap: ()  {
+      onTap: () {
         bool isRoleChat = chatRoom.roleChatId == null ? false : true;
 
         if (isRoleChat) {
@@ -85,12 +85,14 @@ class ChatItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    chatRoom.title,
-                    style: theme.textTheme.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Row(children: [
+                    Text(
+                      chatRoom.title,
+                      style: theme.textTheme.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ]),
                   const SizedBox(height: 4),
                   Text(
                     chatRoom.previewMessage ?? 'No messages yet',

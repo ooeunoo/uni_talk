@@ -11,11 +11,12 @@ import 'package:uni_talk/providers/role_chat_provider.dart';
 import 'package:uni_talk/screens/chat/widgets/message_bubble.dart';
 import 'package:uni_talk/utils/string.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:math';
 
 class RoleChatScreen extends StatefulWidget {
   final ChatRoom chatRoom;
 
-  const RoleChatScreen({super.key, required this.chatRoom});
+  const RoleChatScreen({Key? key, required this.chatRoom}) : super(key: key);
 
   @override
   State<RoleChatScreen> createState() => _RoleChatScreenState();
@@ -45,6 +46,13 @@ class _RoleChatScreenState extends State<RoleChatScreen>
     chatRoom = widget.chatRoom;
 
     fetchRoleChat();
+  }
+
+  @override
+  void dispose() {
+    chatStreamScrollController.dispose();
+    chatMsgTextController.dispose();
+    super.dispose();
   }
 
   void fetchRoleChat() {
@@ -121,6 +129,32 @@ class _RoleChatScreenState extends State<RoleChatScreen>
     toogleWritingChatGPT();
   }
 
+  // 최초 메시지인지
+  bool isFirstMessage(List<ChatMessage> prevMessages) {
+    return prevMessages.length == 1 &&
+        prevMessages[0].sentBy == MessageSender.chatgpt;
+  }
+
+  // 랜덤으로 추천 질문 가져오기
+  List<String> getRandomQuestions(RoleChat roleChat, int numOfQuestions) {
+    if (roleChat.questions.length <= numOfQuestions) {
+      return roleChat.questions;
+    }
+
+    List<String> randomQuestions = [];
+    Set<int> selectedIndices = {};
+
+    while (selectedIndices.length < numOfQuestions) {
+      int randomIndex = Random().nextInt(roleChat.questions.length);
+      if (!selectedIndices.contains(randomIndex)) {
+        selectedIndices.add(randomIndex);
+        randomQuestions.add(roleChat.questions[randomIndex]);
+      }
+    }
+
+    return randomQuestions;
+  }
+
   @override
   Widget build(BuildContext context) {
     CustomTheme theme = getThemeData(Theme.of(context).brightness);
@@ -188,7 +222,7 @@ class _RoleChatScreenState extends State<RoleChatScreen>
                   if (snapshot.hasData) {
                     // Existing chat messages
                     final messages = snapshot.data!.docs.reversed;
-                    List<MessageBubble> messageWidgets = [];
+                    List<Widget> messageWidgets = [];
                     prevMessages = [];
 
                     for (var message in messages) {
@@ -233,6 +267,66 @@ class _RoleChatScreenState extends State<RoleChatScreen>
                                 chatMessage: chatMessage,
                                 isWriting: false));
                       }
+                    }
+
+                    if (isFirstMessage(prevMessages) && roleChat != null) {
+                      Widget recommend = Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Container(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: const Text(
+                                    '추천 질문 ',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Column(
+                                  children: <Widget>[
+                                    ...getRandomQuestions(roleChat!, 3).map(
+                                      (question) => Card(
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 5),
+                                        elevation: 5.0,
+                                        child: InkWell(
+                                          onTap: () {
+                                            // 추천 질문 클릭 시 동작하는 로직 구현
+                                            chatMsgTextController.text =
+                                                question;
+                                            sendMessageByUser();
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 10,
+                                              horizontal: 20,
+                                            ),
+                                            child: Text(
+                                              question,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ));
+                      messageWidgets.insert(0, recommend);
                     }
 
                     return Expanded(
