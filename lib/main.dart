@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:uni_talk/config/theme.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
+import 'package:uni_talk/providers/virtual_user_provider.dart';
 import 'package:uni_talk/screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => VirtualUserProvider()),
         ChangeNotifierProvider(create: (context) => ChatProvider()),
       ],
       child: MaterialApp(
