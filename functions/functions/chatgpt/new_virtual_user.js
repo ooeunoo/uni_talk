@@ -47,7 +47,6 @@ const getPrompt = () => {
   "profileId": string, // 가상의 인스타그램 아이디야, 이름과 직업, 성별에 맞게 창의적으로 표현,
   "profileImage": null,
   "profileIntro": string, // 가상의 인스타그램 프로필 소개 문구, 일상적인 내용 가능
-  "stories": string[] // 가상의 인스타그램 피드 내용, 5개 이상. (창의적이고 일상적인 내용, 직업과 관련되어도 좋음)
   "welcomeMessage": string, // 사용자가 채팅에 참여했을때 보여줄 메시지. 인물이 자신의 직업과 이름을 소개하며 사용자에게 친근하게 다갈 수 있는 어필 문구. 이모지 가능. 창의적이고 다양하게 표현. 
   "questions": string[], // 사용자가 {name}에게 할 수 있는 추천 질문 ({job} 관련된 질문 위주). ex) job: "심리상담가", questions: ["적성에 맞는 일이 무엇인지 잘 모르겠어요.", "이직을 하고 싶은데 어떤 곳을 가는 게 좋을까요?", "안정적인 일 vs 하고싶은 일, 어떤 걸 선택하는게 좋을까요?", ..], 5개 이상.
   "imagePrompt": string, // 인스타그램 프로필용 이미지를 묘사하는데 job, name, sex, profileIntro, welcomeMessage 등을 고려하여 인물의 초상화를 호감있는 외형으로 창의적으로 묘사,
@@ -64,11 +63,6 @@ const getPrompt = () => {
   "profileId": "@min_lovely",
   "profileImage": null,
   "profileIntro": "진정성있는 상담🥰",
-  "stories": [
-    {date: "2020년 01월 23일", image: null, imageHint: "If you look out the window, you can see a small alleyway. Cars move slowly on the street, and people walk around and go about their daily lives. The sky is clear and the sun is shining warmly, and the nearby trees sway slightly in the gentle breeze. On the edge of the window, there is a quiet sound, the sound of the wind passing by, and the occasional chirping of small birds.", content: "날씨가 화창하니 너무 좋자나 🔆", like: 0}, 
-    {date: "2021년 03월 12일", image: null, imageHint: "The book 'Humans, Social Animals' and a coffee cup on the table.", content: "인간, 사회적 동물! 너무 좋은 책이야 👍", like: 0},
-    {date: "2022년 01월 28일", image: null, imageHint: "Delicious donuts and coffee in a small and cozy coffee shop.", content: "마음이 울적할땐, 역시 달달한 도넛이 최고지 🍩", like: 0}
-  ],
   "welcomeMessage": "안녕하세요, 저는 심리 상담가 소민정 AI입니다. 언제든지 저에게 상담을 받으실 수 있습니다. 어떤 문제든지 자유롭게 이야기해주세요~ 😊",
   "questions": [
     "스트레스를 어떻게 푸는게 좋을까요?",
@@ -89,12 +83,6 @@ const getPrompt = () => {
   "profileId": "@rich_do_min",
   "profileImage": null,
   "profileIntro": "서치금융센터 / 리더1팀 팀장\n 내 주변사람 모두가 행복해지는 그날까지 🔥",
-  "stories": [
-    {date: "2019년 04월 19일", image: null, imageHint: "It is a bright conference room, with a large white board and graphs drawn on the meeting table and on the wall inside the conference room. The company's representative wears a brightly colored suit and tie, and customers attend in a variety of outfits. A projector, laptop, and cups are placed on the meeting table, and the company representative and customers discuss the project vigorously.", content: "고객님들과의 미팅은 언제나 짜릿해!", like: 0}, 
-    {date: "2020년 01월 12일", image: null, imageHint: "The characters are dressed similarly and are working at their desks. They work with only one light on, and can be seen tapping the keyboard at high speed. Some characters are sighing while looking out the window, while others are working with coffee or drinks.", content: "오늘도 야근, 하핳", like: 0}, 
-    {date: "2020년 05월 14일", image: null, imageHint: "People who enjoy exercising under the bright sun are appearing. The background is a wide lawn and clear sky, with small trees lined on both sides. The people in the picture are wearing cool sportswear and enjoying a variety of sports.", content: "오운완 💪", like: 0},
-    {date: "2021년 01월 03일", image: null, imageHint: "It is a bright and spacious meeting room with partners. A large poster with the expected number of attendees and other information is hung on the inside wall of the meeting room. The team leader is wearing a high-end suit and is presenting his ideas and plans with the staff around him.", content: "올해 첫 행사 준비!\n 팀장으로서 막중한 책임감을😎 ", like: 0}
-  ],
   "welcomeMessage": "안녕하세요, 저는 재무 분석가 윤도민 AI입니다. 투자에 관련된 궁금한 점이 있다면 제게 물어보세요! 🤑💰",
   "questions": [
     "어떤 종목이 투자하기 좋은가요?",
@@ -152,31 +140,6 @@ const query = async (prompt) => {
 function hasAllKeys(obj, keys) {
   return keys.every((key) => obj.hasOwnProperty(key));
 }
-const queryImageAndUploadToStorageDALLE = async (id, prompt) => {
-  const bucket = storage.bucket("virtual_user_profile");
-
-  const response = await openai.createImage({
-    prompt: `${prompt},  instagram profile image`,
-    n: 1,
-    size: "256x256",
-  });
-  const image = response.data.data[0].url;
-  const response2 = await axios.get(image, { responseType: "arraybuffer" });
-  const buffer = Buffer.from(response2.data, "utf-8");
-  const file = bucket.file(`${id}/${Math.floor(Date.now() / 1000)}.jpg`);
-  await file.save(buffer, {
-    metadata: {
-      contentType: "image/jpeg",
-    },
-  });
-
-  const signedUrl = await file.getSignedUrl({
-    action: "read",
-    expires: "01-01-2025", // Set the expiry date to any date format
-  });
-
-  return signedUrl[0];
-};
 
 const queryImageAndUploadToStorageDreamStudio = async (id, prompt) => {
   const bucket = storage.bucket("virtual_user_profile");
@@ -237,7 +200,6 @@ const crawlRole = async () => {
         "profileId",
         "profileImage",
         "profileIntro",
-        "stories",
         "welcomeMessage",
         "questions",
         "imagePrompt",
@@ -247,7 +209,6 @@ const crawlRole = async () => {
 
       if (isValid) {
         console.log(result);
-        const stories = result.stories;
         const imagePrompt = result.imagePrompt;
 
         delete result.imagePrompt;
@@ -280,26 +241,26 @@ const crawlRole = async () => {
 
         await batch.update(virutalUserRef, { profileImage: image });
 
-        await Promise.all(
-          stories.map(async (story) => {
-            const virtualUserFeedRef = await firestore
-              .collection("virtual_user_feed")
-              .doc();
+        // await Promise.all(
+        //   stories.map(async (story) => {
+        //     const virtualUserFeedRef = await firestore
+        //       .collection("virtual_user_feed")
+        //       .doc();
 
-            await batch.set(virtualUserFeedRef, {
-              virtualUserId: virutalUserRef.id,
-              ...story,
-              createTime: admin.firestore.FieldValue.serverTimestamp(),
-              modifiedTime: admin.firestore.FieldValue.serverTimestamp(),
-            });
-            const imageFeed = await queryImageAndUploadToStorageDreamStudio(
-              virtualUserFeedRef.id,
-              story.imageHint
-            );
+        //     await batch.set(virtualUserFeedRef, {
+        //       virtualUserId: virutalUserRef.id,
+        //       ...story,
+        //       createTime: admin.firestore.FieldValue.serverTimestamp(),
+        //       modifiedTime: admin.firestore.FieldValue.serverTimestamp(),
+        //     });
+        //     const imageFeed = await queryImageAndUploadToStorageDreamStudio(
+        //       virtualUserFeedRef.id,
+        //       story.imageHint
+        //     );
 
-            await batch.update(virtualUserFeedRef, { image: imageFeed });
-          })
-        );
+        //     await batch.update(virtualUserFeedRef, { image: imageFeed });
+        //   })
+        // );
 
         await batch.commit();
 

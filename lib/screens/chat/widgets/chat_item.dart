@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/screens/chat/chat_screen.dart';
-import 'package:uni_talk/screens/chat/role_chat_screen.dart';
 import 'package:uni_talk/utils/navigate.dart';
 
 class ChatItem extends StatelessWidget {
@@ -46,13 +45,13 @@ class ChatItem extends StatelessWidget {
         bool isRoleChat = chatRoom.roleChatId == null ? false : true;
 
         if (isRoleChat) {
-          navigateTo(
-              context,
-              RoleChatScreen(
-                key: ValueKey(chatRoom.id),
-                chatRoom: chatRoom,
-              ),
-              TransitionType.slideLeft);
+          // navigateTo(
+          //     context,
+          //     RoleChatScreen(
+          //       key: ValueKey(chatRoom.id),
+          //       chatRoom: chatRoom,
+          //     ),
+          //     TransitionType.slideLeft);
         } else {
           navigateTo(
               context,

@@ -4,6 +4,19 @@ import 'package:uni_talk/models/virtual_user.dart';
 class VirtualUserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  Stream<List<VirtualUser>> getUsers({
+    required int limit,
+  }) {
+    return _firestore
+        .collection('virtual_users')
+        .orderBy('createTime', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => VirtualUser.fromMap(doc.data()))
+            .toList());
+  }
+
   Future<VirtualUser?> getVirtualUser(String id) async {
     final roleChatSnapshot =
         await _firestore.collection('virtual_users').doc(id).get();
@@ -19,8 +32,6 @@ class VirtualUserService {
 
   Future<List<VirtualUser>> getVirtualUsers() async {
     Query query = _firestore.collection('virtual_users');
-
-    // query = query.orderBy('modifiedTime', descending: true);
 
     final virtualUsersSnapshot = await query.get();
 

@@ -5,6 +5,10 @@ import 'package:uni_talk/services/virtual_user_service.dart';
 class VirtualUserProvider with ChangeNotifier {
   final VirtualUserService _virtualUserService = VirtualUserService();
 
+  Stream<List<VirtualUser>> getUsers({required int limit}) {
+    return _virtualUserService.getUsers(limit: limit);
+  }
+
   Future<VirtualUser?> getVirtualUser(String id) async {
     return _virtualUserService.getVirtualUser(id);
   }

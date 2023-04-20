@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_talk/screens/chat/home_screen.dart';
-import 'package:uni_talk/screens/explorer/home_screen_old.dart';
+import 'package:uni_talk/screens/explorer/home_screen.dart';
 import 'package:uni_talk/screens/profile/home_screen.dart';
 
 class MainScreen extends StatefulWidget {
