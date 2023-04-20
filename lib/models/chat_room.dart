@@ -1,15 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uni_talk/config/chat/category.dart';
-import 'package:uni_talk/config/chat/type.dart';
+import 'package:uni_talk/config/chat.dart';
 
 class ChatRoom {
   final String? id;
   final String userId;
   final String title;
-  final String? image;
   final ChatRoomType type;
-  final ChatRoomCategory category;
-  final String? roleChatId;
+  final String? image;
+  final String? virtualUserId;
   final String? previewMessage;
   final Timestamp? createTime;
   final Timestamp? modifiedTime;
@@ -18,10 +16,9 @@ class ChatRoom {
       {this.id,
       required this.userId,
       required this.title,
-      this.image,
       required this.type,
-      required this.category,
-      this.roleChatId,
+      this.image,
+      this.virtualUserId,
       this.previewMessage,
       this.createTime,
       this.modifiedTime});
@@ -30,11 +27,10 @@ class ChatRoom {
     final data = doc.data() as Map<String, dynamic>;
     final id = doc.id;
     final userId = data['userId'];
-    final roleChatId = data['roleChatId'];
     final title = data['title'];
-    final image = data['image'];
     final type = getChatRoomTypeByString(data['type']);
-    final category = getChatRoomCategoryByString(data['type']);
+    final image = data['image'];
+    final virtualUserId = data['virtualUserId'];
     final previewMessage = data['previewMessage'];
     final createTime = data['createTime'];
     final modifiedTime = data['modifiedTime'];
@@ -42,13 +38,63 @@ class ChatRoom {
     return ChatRoom(
         id: id,
         userId: userId,
-        roleChatId: roleChatId,
         title: title,
         image: image,
         type: type,
-        category: category,
         previewMessage: previewMessage,
+        virtualUserId: virtualUserId,
         createTime: createTime,
         modifiedTime: modifiedTime);
+  }
+
+  factory ChatRoom.fromJson(Map<String, dynamic> json) {
+    return ChatRoom(
+      id: json['id'],
+      userId: json['userId'],
+      title: json['title'],
+      type: getChatRoomTypeByString(json['type']),
+      image: json['image'],
+      virtualUserId: json['virtualUserId'],
+      previewMessage: json['previewMessage'],
+      createTime: json['createTime'],
+      modifiedTime: json['modifiedTime'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'title': title,
+      'type': type.toString(),
+      'image': image,
+      'virtualUserId': virtualUserId,
+      'previewMessage': previewMessage,
+      'createTime': createTime,
+      'modifiedTime': modifiedTime,
+    };
+  }
+
+  ChatRoom copyWith(
+    Map<String, Object?> map, {
+    String? userId,
+    String? title,
+    ChatRoomType? type,
+    String? image,
+    String? virtualUserId,
+    String? previewMessage,
+    Timestamp? createTime,
+    Timestamp? modifiedTime,
+  }) {
+    return ChatRoom(
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      type: type ?? this.type,
+      image: image ?? this.image,
+      virtualUserId: virtualUserId ?? this.virtualUserId,
+      previewMessage: previewMessage ?? this.previewMessage,
+      createTime: createTime ?? this.createTime,
+      modifiedTime: modifiedTime ?? this.modifiedTime,
+    );
   }
 }

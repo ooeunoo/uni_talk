@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uni_talk/config/chat/message_sender.dart';
+import 'package:uni_talk/config/chat.dart';
 
 class ChatMessage {
   final String? id;

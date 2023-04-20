@@ -28,5 +28,11 @@ void printWithoutLimit(String data) {
   print('#####################################');
   data.split('\n').forEach((line) => print(line));
   print('#####################################');
+}
 
+void printInChunks(String text, [int chunkSize = 800]) {
+  for (int i = 0; i < text.length; i += chunkSize) {
+    int end = (i + chunkSize < text.length) ? i + chunkSize : text.length;
+    print(text.substring(i, end));
+  }
 }

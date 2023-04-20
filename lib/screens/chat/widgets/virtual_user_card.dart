@@ -1,56 +1,100 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_talk/models/virtual_user.dart';
 
 class VirtualUserCard extends StatelessWidget {
-  final VirtualUser user;
+  final VirtualUser virtualUser;
+  final Function(VirtualUser) handleSelected;
 
-  const VirtualUserCard({
-    super.key,
-    required this.user,
-  });
+  const VirtualUserCard(
+      {Key? key, required this.virtualUser, required this.handleSelected})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: SizedBox(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  user.profileImage,
-                  height: 150,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+    return GestureDetector(
+        onTap: () => handleSelected(virtualUser),
+        child: Card(
+          elevation: 5,
+          child: SizedBox(
+            height: 150,
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                      virtualUser.profileImage,
+                    ),
+                    radius: 50,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    maxLines: 1,
+                    virtualUser.profileId,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.clip),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    virtualUser.name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Text(
+                    '(${virtualUser.job})',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Text(
+                              '팔로워: ${virtualUser.followers}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Text(
+                              '팔로잉: ${virtualUser.following}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                user.profileId,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                user.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Expanded(
-                  child: SizedBox.shrink()), // Keep the Expanded widget
-              ElevatedButton(
-                onPressed: () {
-                  // Navigate to the chat screen
-                },
-                child: const Text('채팅하러가기'),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

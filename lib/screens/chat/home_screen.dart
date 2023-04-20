@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:uni_talk/models/chat_room.dart';
+import 'package:uni_talk/models/virtual_user.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
-import 'package:uni_talk/providers/user_provider.dart';
+import 'package:uni_talk/providers/virtual_user_provider.dart';
 import 'package:uni_talk/screens/chat/create_chat_screen.dart';
 import 'package:uni_talk/screens/chat/search_screen.dart';
 import 'package:uni_talk/screens/chat/widgets/chat_item.dart';
@@ -20,26 +20,25 @@ class ChatHomeScreen extends StatefulWidget {
 class _ChatHomeScreenState extends State<ChatHomeScreen> {
   String selectedCategory = 'ALL';
 
-  late UserProvider _userProvider;
-  late ChatProvider _chatProvider;
+  final ChatProvider chatProvider = ChatProvider();
+  final VirtualUserProvider virtualUserProvider = VirtualUserProvider();
 
   @override
   void initState() {
     super.initState();
-    _userProvider = Provider.of<UserProvider>(context, listen: false);
-    _chatProvider = Provider.of<ChatProvider>(context, listen: false);
   }
 
   Future<void> _refreshChatRooms() async {
     setState(() {});
   }
 
+  Future<VirtualUser?> getVirtualUser(String virtualUserId) async {
+    return virtualUserProvider.getVirtualUser(virtualUserId);
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-
-    double screenHeight = MediaQuery.of(context).size.height;
-    double categoryHeight = screenHeight * 0.05;
 
     return Scaffold(
       appBar: AppBar(
@@ -80,7 +79,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
           // Chat list
           Expanded(
             child: StreamBuilder(
-              stream: _chatProvider.streamChatRooms(),
+              stream: chatProvider.streamChatRooms(),
               builder: (BuildContext context,
                   AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -97,9 +96,10 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
                 for (var room in chatRooms) {
                   final roomDoc = ChatRoom.fromDocumentSnapshot(room);
                   final chatItem = ChatItem(
-                    key: ValueKey(room.id),
-                    chatRoom: roomDoc,
-                  );
+                      key: ValueKey(room.id),
+                      chatRoom: roomDoc,
+                      getVirtualUser: (virtualUserId) =>
+                          getVirtualUser(virtualUserId));
                   chatItemWidgets.add(chatItem);
                 }
 

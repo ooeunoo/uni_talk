@@ -44,7 +44,7 @@ const getPrompt = () => {
   "job": string, // 인물의 직업
   "name": string, // 인물 이름
   "sex": string, // 인물의 성별 
-  "profileId": string, // 가상의 인스타그램 아이디야, 이름과 직업, 성별에 맞게 창의적으로 표현,
+  "profileId": string, // 가상의 인스타그램 아이디야, 이름과 직업, 성별에 맞게 창의적으로 표현, (15자리 미만)
   "profileImage": null,
   "profileIntro": string, // 가상의 인스타그램 프로필 소개 문구, 일상적인 내용 가능
   "welcomeMessage": string, // 사용자가 채팅에 참여했을때 보여줄 메시지. 인물이 자신의 직업과 이름을 소개하며 사용자에게 친근하게 다갈 수 있는 어필 문구. 이모지 가능. 창의적이고 다양하게 표현. 

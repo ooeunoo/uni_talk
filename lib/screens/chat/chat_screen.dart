@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:uni_talk/config/chat/message_sender.dart';
+import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/config/theme.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';

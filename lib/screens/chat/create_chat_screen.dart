@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:uni_talk/config/chat/category.dart';
-import 'package:uni_talk/config/chat/type.dart';
+import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
@@ -47,11 +46,11 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
     }
 
     ChatRoom chatRoom = ChatRoom(
-        userId: user.uid,
-        title: titleTextController.text,
-        type: ChatRoomType.personal,
-        image: 'https://source.unsplash.com/random/640x480', // 랜덤 이미지 URL 생성
-        category: ChatRoomCategory.unknown);
+      userId: user.uid,
+      title: titleTextController.text,
+      type: ChatRoomType.personal,
+      image: 'https://source.unsplash.com/random/640x480', // 랜덤 이미지 URL 생성
+    );
 
     ChatRoom newChatRoom = await chatProvider.createChatRoom(chatRoom);
     return newChatRoom;

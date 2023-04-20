@@ -2,65 +2,74 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uni_talk/models/virtual_user.dart';
 
 class VirtualUserService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final virtualUserRef = FirebaseFirestore.instance.collection('virtual_users');
 
-  Stream<List<VirtualUser>> getUsers({
-    required int limit,
-  }) {
-    return _firestore
-        .collection('virtual_users')
-        .orderBy('createTime', descending: true)
-        .limit(limit)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => VirtualUser.fromMap(doc.data()))
-            .toList());
+  CollectionReference<VirtualUser> getVirtualUserReferences() {
+    return virtualUserRef.withConverter<VirtualUser>(
+        fromFirestore: (snapshot, _) =>
+            VirtualUser.fromDocumentSnapshot(snapshot),
+        toFirestore: (virtualUser, _) => virtualUser.toJson());
   }
 
-  Future<VirtualUser?> getVirtualUser(String id) async {
-    final roleChatSnapshot =
-        await _firestore.collection('virtual_users').doc(id).get();
+  Future<int> getTotalUsersCount() async {
+    final snapshot = await virtualUserRef.get();
+    return snapshot.docs.length;
+  }
 
-    if (roleChatSnapshot.exists) {
-      final data = roleChatSnapshot.data() as Map<String, dynamic>;
-      data['id'] = roleChatSnapshot.id;
-      return VirtualUser.fromMap(data);
-    } else {
+  Future<VirtualUser?> getVirtualUser(String virtualUserId) async {
+    try {
+      final snapshot = await virtualUserRef.doc(virtualUserId).get();
+      if (!snapshot.exists) {
+        return null;
+      }
+      return VirtualUser.fromDocumentSnapshot(snapshot);
+    } catch (e) {
+      print('Error getting virtual user: $e');
       return null;
     }
   }
 
-  Future<List<VirtualUser>> getVirtualUsers() async {
-    Query query = _firestore.collection('virtual_users');
+  // Future<VirtualUser?> getVirtualUser(String virtualUserId) async {
+  //   final roleChatSnapshot = await virtualUserRef.doc(virtualUserId).get();
 
-    final virtualUsersSnapshot = await query.get();
+  //   if (roleChatSnapshot.exists) {
+  //     final data = roleChatSnapshot.data() as Map<String, dynamic>;
+  //     data['id'] = roleChatSnapshot.id;
+  //     // return VirtualUser.fromJson(data);
+  //   } else {
+  //     return null;
+  //   }
+  // }
 
-    return virtualUsersSnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      data['id'] = doc.id;
-      return VirtualUser.fromMap(data);
-    }).toList();
-  }
+  // Future<List<VirtualUser>> getVirtualUsers() async {
+  //   Query query = virtualUserRef;
 
-  Future<List<VirtualUser>> getTopFollowerVirtualUsers() async {
-    final virtualUsersSnapshot = await _firestore
-        .collection('virtual_users')
-        .orderBy('followers', descending: true)
-        .limit(5)
-        .get();
+  //   final virtualUsersSnapshot = await query.get();
 
-    return virtualUsersSnapshot.docs.map((doc) {
-      final data = doc.data();
-      data['id'] = doc.id;
-      return VirtualUser.fromMap(data);
-    }).toList();
-  }
+  //   return virtualUsersSnapshot.docs.map((doc) {
+  //     final data = doc.data() as Map<String, dynamic>;
+  //     data['id'] = doc.id;
+  //     return VirtualUser.fromJson(data);
+  //   }).toList();
+  // }
 
-  Future<void> addFollowers(String id) async {
-    DocumentSnapshot snapshot =
-        await _firestore.collection('virtual_users').doc(id).get();
+  // Future<List<VirtualUser>> getTopFollowerVirtualUsers() async {
+  //   final virtualUsersSnapshot = await virtualUserRef
+  //       .orderBy('followers', descending: true)
+  //       .limit(5)
+  //       .get();
+
+  //   return virtualUsersSnapshot.docs.map((doc) {
+  //     final data = doc.data();
+  //     data['id'] = doc.id;
+  //     return VirtualUser.fromJson(data);
+  //   }).toList();
+  // }
+
+  Future<void> addFollowers(String virtualUserId) async {
+    DocumentSnapshot snapshot = await virtualUserRef.doc(virtualUserId).get();
     int followers = snapshot.get('followers');
-    await _firestore.collection('virtual_users').doc(id).update({
+    await virtualUserRef.doc(virtualUserId).update({
       'followers': followers + 1,
     });
   }

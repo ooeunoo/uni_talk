@@ -1,20 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uni_talk/config/chat/category.dart';
-import 'package:uni_talk/config/chat/message_sender.dart';
-import 'package:uni_talk/config/chat/type.dart';
+import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/models/chat_room.dart';
 
 class ChatService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final chatRoomRef = FirebaseFirestore.instance.collection('chat_rooms');
+  final chatMessageRef = FirebaseFirestore.instance.collection('chat_messages');
 
-  Future<ChatRoom?> getExistingChatRoom(
-      String userId, String roleChatId) async {
-    QuerySnapshot querySnapshot = await _firestore
-        .collection('chat_rooms')
-        .where('userId', isEqualTo: userId)
-        .where('roleChatId', isEqualTo: roleChatId)
-        .get();
+  Future<ChatRoom?> getExistingChatRoom(String userId,
+      {String? virtualUserId}) async {
+    Query query = chatRoomRef.where('userId', isEqualTo: userId);
+
+    if (virtualUserId != null) {
+      query = query.where('virtualUserId', isEqualTo: virtualUserId);
+    }
+
+    QuerySnapshot querySnapshot = await query.get();
 
     if (querySnapshot.docs.isNotEmpty) {
       return ChatRoom.fromDocumentSnapshot(querySnapshot.docs.first);
@@ -25,26 +26,23 @@ class ChatService {
 
   // 채팅룸 생성
   Future<ChatRoom> createChatRoom(ChatRoom chatRoom) async {
-    final docRef = await _firestore.collection('chat_rooms').add({
+    final docRef = await chatRoomRef.add({
       'userId': chatRoom.userId,
-      'roleChatId': chatRoom.roleChatId,
       'title': chatRoom.title,
       'image': chatRoom.image,
       'type': getChatRoomType(chatRoom.type),
-      'category': getChatRoomCategory(chatRoom.category),
       'previewMessage': null,
+      'virtualUserId': chatRoom.virtualUserId,
       'createTime': DateTime.now(),
       'modifiedTime': DateTime.now(),
     });
 
     final newChatRoom = ChatRoom(
       id: docRef.id,
-      roleChatId: chatRoom.roleChatId,
       userId: chatRoom.userId,
       title: chatRoom.title,
       image: chatRoom.image,
       type: chatRoom.type,
-      category: chatRoom.category,
       previewMessage: null,
     );
 
@@ -58,8 +56,7 @@ class ChatService {
     String? type,
     String? category,
   }) {
-    return _firestore
-        .collection('chat_rooms')
+    return chatRoomRef
         .where('userId', isEqualTo: userId)
         .orderBy('modifiedTime', descending: true)
         .snapshots();
@@ -67,8 +64,7 @@ class ChatService {
 
   // 메시지 스트림
   Stream<QuerySnapshot> streamChatMessages(String chatRoomId) {
-    return _firestore
-        .collection('chat_messages')
+    return chatMessageRef
         .where('chatRoomId', isEqualTo: chatRoomId)
         .orderBy('createTime')
         .snapshots();
@@ -76,7 +72,7 @@ class ChatService {
 
   // 메시지 전송
   Future<void> sendMessage(ChatMessage chatMessage) async {
-    await _firestore.collection('chat_messages').add({
+    await chatMessageRef.add({
       'chatRoomId': chatMessage.chatRoomId,
       'sentBy': getMessageSender(chatMessage.sentBy),
       'message': chatMessage.message,
@@ -89,7 +85,7 @@ class ChatService {
   // 메시지 업데이트
   Future<void> updateMessage(
       String messageId, ChatMessage updatedChatMessage) async {
-    await _firestore.collection('chat_messages').doc(messageId).update({
+    await chatMessageRef.doc(messageId).update({
       'chatRoomId': updatedChatMessage.chatRoomId,
       'sentBy': getMessageSender(updatedChatMessage.sentBy),
       'message': updatedChatMessage.message,
@@ -107,7 +103,7 @@ class ChatService {
     if (previewMessage.length > 30) {
       shortenedPreviewMessage = previewMessage.substring(0, 30);
     }
-    await _firestore.collection('chat_rooms').doc(chatRoomId).update({
+    await chatRoomRef.doc(chatRoomId).update({
       'previewMessage': shortenedPreviewMessage,
       'modifiedTime': DateTime.now(),
     });

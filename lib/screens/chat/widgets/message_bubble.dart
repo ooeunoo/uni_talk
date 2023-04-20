@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:uni_talk/config/chat/message_sender.dart';
+import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/models/chat_message.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/widgets/snackbar.dart';

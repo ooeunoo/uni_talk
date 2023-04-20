@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/models/chat_room.dart';
+import 'package:uni_talk/models/virtual_user.dart';
 import 'package:uni_talk/screens/chat/chat_screen.dart';
 import 'package:uni_talk/utils/navigate.dart';
 
 class ChatItem extends StatelessWidget {
   final ChatRoom chatRoom;
+  final Future<VirtualUser?> Function(String virtualUserId) getVirtualUser;
 
-  const ChatItem({
-    super.key,
-    required this.chatRoom,
-  });
+  const ChatItem(
+      {super.key, required this.chatRoom, required this.getVirtualUser});
 
   String getChatTime() {
     DateFormat timeFormat = DateFormat('hh:mm'); // 시간 포맷 변경
@@ -36,48 +37,68 @@ class ChatItem extends StatelessWidget {
     return displayTime;
   }
 
+  Future<DecorationImage> _getImage() async {
+    print(chatRoom.type);
+    print('here');
+    print(ChatRoomType.virtualUser);
+    if (chatRoom.type == ChatRoomType.virtualUser) {
+      print('여기');
+      final virtualUser = await getVirtualUser(chatRoom.virtualUserId!);
+      print(virtualUser?.profileImage);
+      return DecorationImage(
+        image: NetworkImage(virtualUser?.profileImage ?? ''),
+        fit: BoxFit.cover,
+      );
+    } else {
+      return DecorationImage(
+        image: NetworkImage(chatRoom.image ?? ''),
+        fit: BoxFit.cover,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
     return InkWell(
       onTap: () {
-        bool isRoleChat = chatRoom.roleChatId == null ? false : true;
+        switch (chatRoom.type) {
+          case ChatRoomType.personal:
+            navigateTo(
+                context,
+                ChatScreen(
+                  key: ValueKey(chatRoom.id),
+                  chatRoom: chatRoom,
+                ),
+                TransitionType.slideLeft);
+            break;
 
-        if (isRoleChat) {
-          // navigateTo(
-          //     context,
-          //     RoleChatScreen(
-          //       key: ValueKey(chatRoom.id),
-          //       chatRoom: chatRoom,
-          //     ),
-          //     TransitionType.slideLeft);
-        } else {
-          navigateTo(
-              context,
-              ChatScreen(
-                key: ValueKey(chatRoom.id),
-                chatRoom: chatRoom,
-              ),
-              TransitionType.slideLeft);
+          case ChatRoomType.virtualUser:
+            break;
         }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            if (chatRoom.image != null && chatRoom.image!.isNotEmpty)
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: NetworkImage(chatRoom.image!),
-                    fit: BoxFit.cover,
+            FutureBuilder<DecorationImage>(
+              future: _getImage(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                }
+
+                return Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: snapshot.data,
                   ),
-                ),
-              ),
+                );
+              },
+            ),
             const SizedBox(width: 10),
             Expanded(
               flex: 1,

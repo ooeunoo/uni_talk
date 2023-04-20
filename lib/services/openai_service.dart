@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:uni_talk/config/chat/message_sender.dart';
+import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/config/openai_model.dart';
 import 'package:uni_talk/models/chat_message.dart';
 

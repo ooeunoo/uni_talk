@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uni_talk/models/virtual_user.dart';
 import 'package:uni_talk/services/virtual_user_service.dart';
@@ -5,21 +6,26 @@ import 'package:uni_talk/services/virtual_user_service.dart';
 class VirtualUserProvider with ChangeNotifier {
   final VirtualUserService _virtualUserService = VirtualUserService();
 
-  Stream<List<VirtualUser>> getUsers({required int limit}) {
-    return _virtualUserService.getUsers(limit: limit);
+  // Get Users query
+  CollectionReference<VirtualUser> getVirtualUserReferences() {
+    return _virtualUserService.getVirtualUserReferences();
   }
 
-  Future<VirtualUser?> getVirtualUser(String id) async {
-    return _virtualUserService.getVirtualUser(id);
+  Future<int> getTotalUsersCount() async {
+    return _virtualUserService.getTotalUsersCount();
   }
 
-  Future<List<VirtualUser>> getVirtualUsers() async {
-    return _virtualUserService.getVirtualUsers();
+  Future<VirtualUser?> getVirtualUser(String virtualUserId) async {
+    return _virtualUserService.getVirtualUser(virtualUserId);
   }
 
-  Future<List<VirtualUser>> getTopFollowerVirtualUsers() async {
-    return _virtualUserService.getTopFollowerVirtualUsers();
-  }
+  // Future<List<VirtualUser>> getVirtualUsers() async {
+  //   return _virtualUserService.getVirtualUsers();
+  // }
+
+  // Future<List<VirtualUser>> getTopFollowerVirtualUsers() async {
+  //   return _virtualUserService.getTopFollowerVirtualUsers();
+  // }
 
   Future<void> addFollowers(String id) async {
     await _virtualUserService.addFollowers(id);
