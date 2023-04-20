@@ -4,7 +4,9 @@ import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/models/virtual_user.dart';
 import 'package:uni_talk/screens/chat/chat_screen.dart';
+import 'package:uni_talk/screens/chat/virtual_user_chat_screen.dart';
 import 'package:uni_talk/utils/navigate.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ChatItem extends StatelessWidget {
   final ChatRoom chatRoom;
@@ -37,24 +39,22 @@ class ChatItem extends StatelessWidget {
     return displayTime;
   }
 
-  Future<DecorationImage> _getImage() async {
-    print(chatRoom.type);
-    print('here');
-    print(ChatRoomType.virtualUser);
+  Future<Widget> _getImage() async {
+    String imageUrl;
+
     if (chatRoom.type == ChatRoomType.virtualUser) {
-      print('여기');
       final virtualUser = await getVirtualUser(chatRoom.virtualUserId!);
-      print(virtualUser?.profileImage);
-      return DecorationImage(
-        image: NetworkImage(virtualUser?.profileImage ?? ''),
-        fit: BoxFit.cover,
-      );
+      imageUrl = virtualUser?.profileImage ?? '';
     } else {
-      return DecorationImage(
-        image: NetworkImage(chatRoom.image ?? ''),
-        fit: BoxFit.cover,
-      );
+      imageUrl = chatRoom.image ?? '';
     }
+
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => const CircularProgressIndicator(),
+      errorWidget: (context, url, error) => const Icon(Icons.error),
+    );
   }
 
   @override
@@ -73,8 +73,17 @@ class ChatItem extends StatelessWidget {
                 ),
                 TransitionType.slideLeft);
             break;
-
           case ChatRoomType.virtualUser:
+            navigateTo(
+                context,
+                VirtualUserChatScreen(
+                  key: ValueKey(chatRoom.id),
+                  chatRoom: chatRoom,
+                ),
+                TransitionType.slideLeft);
+            break;
+          case ChatRoomType.unknown:
+            // TODO: Handle this case.
             break;
         }
       },
@@ -82,7 +91,7 @@ class ChatItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            FutureBuilder<DecorationImage>(
+            FutureBuilder<Widget>(
               future: _getImage(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -92,10 +101,10 @@ class ChatItem extends StatelessWidget {
                 return Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    image: snapshot.data,
                   ),
+                  child: ClipOval(child: snapshot.data!),
                 );
               },
             ),

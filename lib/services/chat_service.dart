@@ -38,13 +38,13 @@ class ChatService {
     });
 
     final newChatRoom = ChatRoom(
-      id: docRef.id,
-      userId: chatRoom.userId,
-      title: chatRoom.title,
-      image: chatRoom.image,
-      type: chatRoom.type,
-      previewMessage: null,
-    );
+        id: docRef.id,
+        userId: chatRoom.userId,
+        title: chatRoom.title,
+        image: chatRoom.image,
+        type: chatRoom.type,
+        previewMessage: null,
+        virtualUserId: chatRoom.virtualUserId);
 
     return newChatRoom;
   }

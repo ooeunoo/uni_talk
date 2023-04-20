@@ -32,7 +32,6 @@ class ChatProvider with ChangeNotifier {
   // 롤챗이 존재하는지
   Future<ChatRoom?> getExistingChatRoom(String userId,
       {String? virtualUserId}) async {
-    print('chatProvider virtualUserId $virtualUserId');
     final existingChatRoom = await _chatService.getExistingChatRoom(userId,
         virtualUserId: virtualUserId);
     notifyListeners();

@@ -116,19 +116,19 @@ class _ChatScreenState extends State<ChatScreen>
           appBar: AppBar(
             iconTheme: theme.chatRoomAppBarIcon,
             elevation: 0,
-            bottom: PreferredSize(
-              preferredSize: const Size(25, 10),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(20)),
-                constraints: const BoxConstraints.expand(height: 1),
-                child: LinearProgressIndicator(
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                  backgroundColor: Colors.blue[100],
-                ),
-              ),
-            ),
+            // bottom: PreferredSize(
+            //   preferredSize: const Size(25, 10),
+            //   child: Container(
+            //     decoration: BoxDecoration(
+            //         color: Colors.blue,
+            //         borderRadius: BorderRadius.circular(20)),
+            //     constraints: const BoxConstraints.expand(height: 1),
+            //     child: LinearProgressIndicator(
+            //       valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+            //       backgroundColor: Colors.blue[100],
+            //     ),
+            //   ),
+            // ),
             backgroundColor: Colors.white10,
             title: Row(
               children: <Widget>[

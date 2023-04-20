@@ -87,7 +87,7 @@ class _MessageBubbleState extends State<MessageBubble> {
                   isUser ? const Radius.circular(0) : const Radius.circular(50),
             ),
             color: isUser ? Colors.blue : Colors.white,
-            elevation: 5,
+            elevation: 8,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               child: AnimatedCrossFade(
@@ -107,16 +107,18 @@ class _MessageBubbleState extends State<MessageBubble> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                        child: Text(
-                          chatMessage.message,
-                          style: TextStyle(
-                            color: isUser ? Colors.white : Colors.blue,
-                            fontFamily: 'Poppins',
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
+                          filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: Text(
+                              chatMessage.message,
+                              style: TextStyle(
+                                color: isUser ? Colors.white : Colors.blue,
+                                fontFamily: 'Poppins',
+                                fontSize: 18,
+                              ),
+                            ),
+                          )),
                     ],
                   )),
             ),

@@ -9,7 +9,9 @@ import 'package:uni_talk/models/virtual_user.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
 import 'package:uni_talk/providers/virtual_user_provider.dart';
+import 'package:uni_talk/screens/chat/virtual_user_chat_screen.dart';
 import 'package:uni_talk/screens/chat/widgets/virtual_user_card.dart';
+import 'package:uni_talk/utils/navigate.dart';
 
 class ExplorerHomeScreen extends StatefulWidget {
   const ExplorerHomeScreen({Key? key}) : super(key: key);
@@ -25,7 +27,7 @@ class _ExplorerHomeScreenState extends State<ExplorerHomeScreen> {
 
   final TextEditingController _searchController = TextEditingController();
 
-  Future<void> handleSelcted(VirtualUser virtualUser) async {
+  Future<void> handleSelected(VirtualUser virtualUser) async {
     User? user = userProvider.currentUser;
 
     if (user == null) {
@@ -36,24 +38,26 @@ class _ExplorerHomeScreenState extends State<ExplorerHomeScreen> {
         virtualUserId: virtualUser.id);
 
     if (chatRoom == null) {
-      ChatRoom chatRoom = ChatRoom(
+      ChatRoom newChatRoom = ChatRoom(
           userId: user.uid,
           title: virtualUser.name,
           type: ChatRoomType.virtualUser,
           virtualUserId: virtualUser.id);
 
-      chatRoom = await chatProvider.createChatRoom(chatRoom);
+      chatRoom = await chatProvider.createChatRoom(newChatRoom);
       ChatMessage chatMessage = ChatMessage(
           chatRoomId: chatRoom.id!,
           sentBy: MessageSender.chatgpt,
           message: virtualUser.welcomeMessage,
           like: false);
+
       await chatProvider.sendMessage(chatMessage);
 
       await virtualUserProvider.addFollowers(virtualUser.id!);
     }
 
-    //TODO:
+    navigateTo(context, VirtualUserChatScreen(chatRoom: chatRoom),
+        TransitionType.slideLeft);
   }
 
   @override
@@ -136,7 +140,7 @@ class _ExplorerHomeScreenState extends State<ExplorerHomeScreen> {
                                 key: ValueKey(virtualUser.id),
                                 virtualUser: virtualUser,
                                 handleSelected: (virtualUser) =>
-                                    handleSelcted(virtualUser),
+                                    handleSelected(virtualUser),
                               );
                             });
                       }
