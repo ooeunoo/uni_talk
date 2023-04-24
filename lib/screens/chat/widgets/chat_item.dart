@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/models/chat_room.dart';
 import 'package:uni_talk/models/virtual_user.dart';
-import 'package:uni_talk/screens/chat/chat_screen.dart';
-import 'package:uni_talk/screens/chat/virtual_user_chat_screen.dart';
+import 'package:uni_talk/screens/chat/personal/personal_chat_screen.dart';
+import 'package:uni_talk/screens/chat/virtual_user/virtual_user_chat_screen.dart';
 import 'package:uni_talk/utils/navigate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -67,7 +67,7 @@ class ChatItem extends StatelessWidget {
           case ChatRoomType.personal:
             navigateTo(
                 context,
-                ChatScreen(
+                PersonalChatScreen(
                   key: ValueKey(chatRoom.id),
                   chatRoom: chatRoom,
                 ),

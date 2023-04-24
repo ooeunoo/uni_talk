@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:uni_talk/screens/chat/home_screen.dart';
-import 'package:uni_talk/screens/explorer/home_screen.dart';
-import 'package:uni_talk/screens/profile/home_screen.dart';
+import 'package:uni_talk/screens/chat/chat_home_screen.dart';
+import 'package:uni_talk/screens/explorer/explorer_home_screen.dart';
+import 'package:uni_talk/screens/profile/profile_home_screen.dart';
+import 'package:uni_talk/screens/storage_box/storage_box_home_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     const ChatHomeScreen(),
     const ExplorerHomeScreen(),
-    const Text(""),
+    const StorageBoxHomeScreen(),
     const ProfileHomeScreen()
   ];
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uni_talk/config/theme.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
+import 'package:uni_talk/providers/storage_box_provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
 import 'package:uni_talk/providers/virtual_user_provider.dart';
 import 'package:uni_talk/screens/splash_screen.dart';
@@ -34,13 +35,14 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UserProvider()),
         ChangeNotifierProvider(create: (context) => VirtualUserProvider()),
         ChangeNotifierProvider(create: (context) => ChatProvider()),
+        ChangeNotifierProvider(create: (context) => StorageBoxProvider())
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: true,
           // debugShowMaterialGrid: true,
           title: 'Flutter Splash Screen Demo',
           theme: getThemeData(Brightness.light).themeData,
-          darkTheme: getThemeData(Brightness.dark).themeData,
+          // darkTheme: getThemeData(Brightness.dark).themeData,
           themeMode: ThemeMode.system,
           home: const SplashScreen()),
     );

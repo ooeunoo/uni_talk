@@ -9,9 +9,10 @@ import 'package:uni_talk/models/virtual_user.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/openai_provider.dart';
 import 'package:uni_talk/providers/virtual_user_provider.dart';
+import 'package:uni_talk/screens/chat/virtual_user/virtual_user_message_input_box.dart';
+import 'package:uni_talk/screens/chat/virtual_user/virtual_user_recommend_questions.dart';
 import 'package:uni_talk/screens/chat/widgets/message_bubble.dart';
 import 'package:uni_talk/utils/string.dart';
-import 'package:flutter/cupertino.dart';
 import 'dart:math';
 
 class VirtualUserChatScreen extends StatefulWidget {
@@ -36,7 +37,7 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
 
   List<ChatMessage> prevMessages = [];
 
-  bool errorOfChatGPT = false; // error: true,
+  bool errorOfChatGPT = false;
   bool writingChatGPT = false;
 
   @override
@@ -54,21 +55,21 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
   }
 
   // chatgpt 글 작성중 상태 토글링
-  void toogleWritingChatGPT() {
+  void _toggleWritingChatGPT() {
     setState(() {
       writingChatGPT = !writingChatGPT;
     });
   }
 
   // chatGPT 상태 변화
-  void changeStateChatGPT(bool state) {
+  void _changeStateChatGPT(bool state) {
     setState(() {
       errorOfChatGPT = state;
     });
   }
 
   // 최하단으로 스크롤
-  void scrollToBottom() {
+  void _scrollToBottom() {
     chatStreamScrollController.animateTo(
       0.0,
       duration: const Duration(milliseconds: 300),
@@ -76,36 +77,43 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
     );
   }
 
-  // 사용자 메시지 송신
-  String? sendMessageByUser() {
-    if (chatMsgTextController.text.isEmpty) return null;
+  // 사용자 메시지 송신 -> ChatGPT 메시지 수신
+  Future<void> _startConversation(
+      VirtualUser virtualUser, String message) async {
+    if (message.isEmpty) return;
 
+    List<ChatMessage> injectedMessages = prevMessages;
+
+    await _sendMessageByUser(message);
+    await _receiveMessageByChatGPT(virtualUser, injectedMessages, message);
+  }
+
+  // 사용자 메시지 송신
+  Future<void> _sendMessageByUser(String message) async {
     ChatMessage userMessage = ChatMessage(
         chatRoomId: chatRoom.id!,
         sentBy: MessageSender.user,
-        message: chatMsgTextController.text,
+        message: message,
         like: false);
     chatMsgTextController.clear();
 
-    chatProvider.sendMessage(userMessage);
+    await chatProvider.sendMessage(userMessage);
 
-    scrollToBottom();
-
-    return userMessage.message;
+    _scrollToBottom();
   }
 
   // ChatGPT 메시지 수신
-  Future<void> receiveMessageByChatGPT(
-      VirtualUser virtualUser, String message) async {
-    toogleWritingChatGPT();
+  Future<void> _receiveMessageByChatGPT(VirtualUser virtualUser,
+      List<ChatMessage> injectedMessages, String message) async {
+    _toggleWritingChatGPT();
 
     String? answer = await openAIProvider.askToChatGPTForRole(
-        virtualUser.systemMessage, prevMessages, message);
+        virtualUser.systemMessage, injectedMessages, message);
 
     if (answer == null) {
-      changeStateChatGPT(true);
+      _changeStateChatGPT(true);
     } else {
-      changeStateChatGPT(false);
+      _changeStateChatGPT(false);
       ChatMessage chatgptMessage = ChatMessage(
           chatRoomId: chatRoom.id!,
           sentBy: MessageSender.chatgpt,
@@ -115,17 +123,18 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
       chatProvider.sendMessage(chatgptMessage);
     }
 
-    toogleWritingChatGPT();
+    _toggleWritingChatGPT();
   }
 
   // 최초 메시지인지
-  bool isFirstMessage(List<ChatMessage> prevMessages) {
+  bool _isFirstMessage(List<ChatMessage> prevMessages) {
     return prevMessages.length == 1 &&
         prevMessages[0].sentBy == MessageSender.chatgpt;
   }
 
   // 랜덤으로 추천 질문 가져오기
-  List<String> getRandomQuestions(VirtualUser virtualUser, int numOfQuestions) {
+  List<String> _getRandomQuestions(
+      VirtualUser virtualUser, int numOfQuestions) {
     if (virtualUser.questions.length <= numOfQuestions) {
       return virtualUser.questions;
     }
@@ -171,20 +180,6 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
                 appBar: AppBar(
                   iconTheme: theme.chatRoomAppBarIcon,
                   elevation: 0,
-                  // bottom: PreferredSize(
-                  //   preferredSize: const Size(25, 10),
-                  //   child: Container(
-                  //     decoration: BoxDecoration(
-                  //         color: Colors.blue,
-                  //         borderRadius: BorderRadius.circular(20)),
-                  //     constraints: const BoxConstraints.expand(height: 1),
-                  //     child: LinearProgressIndicator(
-                  //       valueColor:
-                  //           const AlwaysStoppedAnimation<Color>(Colors.white),
-                  //       backgroundColor: Colors.blue[100],
-                  //     ),
-                  //   ),
-                  // ),
                   backgroundColor: Colors.white10,
                   title: Row(
                     children: <Widget>[
@@ -261,7 +256,6 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
                           }
 
                           if (writingChatGPT) {
-                            // User is typing a message to ChatGPT
                             final chatMessage = ChatMessage(
                                 chatRoomId: chatRoom.id!,
                                 sentBy: MessageSender.chatgpt,
@@ -291,72 +285,15 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
                             }
                           }
 
-                          if (isFirstMessage(prevMessages)) {
-                            Widget recommend = Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Container(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: <Widget>[
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: const Text(
-                                          '추천 질문 ',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Column(
-                                        children: <Widget>[
-                                          ...getRandomQuestions(virtualUser, 3)
-                                              .map(
-                                            (question) => Card(
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 5),
-                                              elevation: 5.0,
-                                              child: InkWell(
-                                                onTap: () {
-                                                  // 추천 질문 클릭 시 동작하는 로직 구현
-                                                  chatMsgTextController.text =
-                                                      question;
-                                                  String? message =
-                                                      sendMessageByUser();
-                                                  if (message != null) {
-                                                    receiveMessageByChatGPT(
-                                                        virtualUser, message);
-                                                  }
-                                                },
-                                                child: Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    vertical: 10,
-                                                    horizontal: 20,
-                                                  ),
-                                                  child: Text(
-                                                    question,
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black87,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ));
+                          if (_isFirstMessage(prevMessages)) {
+                            Widget recommend = VirtualUserRecommendQuestions(
+                                msgController: chatMsgTextController,
+                                startConversation: (virtualUser, msg) =>
+                                    _startConversation(virtualUser, msg),
+                                randomQuestions:
+                                    _getRandomQuestions(virtualUser, 3),
+                                virtualUser: virtualUser);
+
                             messageWidgets.insert(0, recommend);
                           }
 
@@ -378,61 +315,12 @@ class _VirtualUserChatScreenState extends State<VirtualUserChatScreen>
                         }
                       },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 10),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Expanded(
-                              child: Material(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Colors.white,
-                                elevation: 5,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 8.0, top: 2, bottom: 2),
-                                  child: TextField(
-                                    controller: chatMsgTextController,
-                                    style: theme.chatRoomMessageTextField,
-                                    decoration: theme
-                                        .chatRoomMessageHintTextField
-                                        .copyWith(
-                                      enabledBorder: const OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.transparent),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(50)),
-                                      ),
-                                      focusedBorder: const OutlineInputBorder(
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      enabled: !writingChatGPT,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10.0),
-                            IconButton(
-                              color: Colors.blue,
-                              onPressed: () {
-                                String? message = sendMessageByUser();
-                                if (message != null) {
-                                  receiveMessageByChatGPT(virtualUser, message);
-                                }
-                              },
-                              icon: const Icon(
-                                CupertinoIcons.paperplane,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    VirtualUserMessageInputBox(
+                        msgController: chatMsgTextController,
+                        startConversation: (virtualUser, msg) =>
+                            _startConversation(virtualUser, msg),
+                        enable: !writingChatGPT,
+                        virtualUser: virtualUser)
                   ],
                 ),
               ));

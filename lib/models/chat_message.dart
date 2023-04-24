@@ -20,21 +20,14 @@ class ChatMessage {
 
   factory ChatMessage.fromDocumentSnapshot(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    final id = doc.id;
-    final chatRoomId = data['chatRoomId'];
-    final sentBy = getMessageSenderByString(data['sentBy']);
-    final message = data['message'];
-    final like = data['like'];
-    final createTime = data['createTime'];
 
     return ChatMessage(
-      id: id,
-      chatRoomId: chatRoomId,
-      sentBy: sentBy,
-      message: message,
-      like: like,
-      createTime: createTime,
-    );
+        id: doc.id,
+        chatRoomId: data['chatRoomId'],
+        sentBy: getMessageSenderByString(data['sentBy']),
+        message: data['message'],
+        like: data['like'],
+        createTime: data['createTime']);
   }
 
   ChatMessage copyWith({

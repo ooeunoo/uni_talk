@@ -9,8 +9,8 @@ import 'package:uni_talk/models/virtual_user.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
 import 'package:uni_talk/providers/virtual_user_provider.dart';
-import 'package:uni_talk/screens/chat/virtual_user_chat_screen.dart';
-import 'package:uni_talk/screens/chat/widgets/virtual_user_card.dart';
+import 'package:uni_talk/screens/chat/virtual_user/virtual_user_chat_screen.dart';
+import 'package:uni_talk/screens/explorer/widgets/virtual_user_card.dart';
 import 'package:uni_talk/utils/navigate.dart';
 
 class ExplorerHomeScreen extends StatefulWidget {

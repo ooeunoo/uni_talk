@@ -25,26 +25,17 @@ class ChatRoom {
 
   factory ChatRoom.fromDocumentSnapshot(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    final id = doc.id;
-    final userId = data['userId'];
-    final title = data['title'];
-    final type = getChatRoomTypeByString(data['type']);
-    final image = data['image'];
-    final virtualUserId = data['virtualUserId'];
-    final previewMessage = data['previewMessage'];
-    final createTime = data['createTime'];
-    final modifiedTime = data['modifiedTime'];
 
     return ChatRoom(
-        id: id,
-        userId: userId,
-        title: title,
-        image: image,
-        type: type,
-        previewMessage: previewMessage,
-        virtualUserId: virtualUserId,
-        createTime: createTime,
-        modifiedTime: modifiedTime);
+        id: doc.id,
+        userId: data['userId'],
+        title: data['title'],
+        image: data['image'],
+        type: getChatRoomTypeByString(data['type']),
+        previewMessage: data['previewMessage'],
+        virtualUserId: data['virtualUserId'],
+        createTime: data['createTime'],
+        modifiedTime: data['modifiedTime']);
   }
 
   factory ChatRoom.fromJson(Map<String, dynamic> json) {

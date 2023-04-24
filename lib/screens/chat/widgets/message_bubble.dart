@@ -5,7 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:uni_talk/config/chat.dart';
 import 'package:uni_talk/models/chat_message.dart';
+import 'package:uni_talk/models/storage_box.dart';
 import 'package:uni_talk/providers/chat_provider.dart';
+import 'package:uni_talk/providers/storage_box_provider.dart';
+import 'package:uni_talk/screens/chat/widgets/storage_box_drawer.dart';
 import 'package:uni_talk/widgets/snackbar.dart';
 
 class MessageBubble extends StatefulWidget {
@@ -23,9 +26,13 @@ class MessageBubble extends StatefulWidget {
 }
 
 class _MessageBubbleState extends State<MessageBubble> {
+  final ChatProvider _chatProvider = ChatProvider();
+  final StorageBoxProvider _storageBoxProvider = StorageBoxProvider();
+
   late ChatMessage chatMessage;
   late bool isWriting;
-  ChatProvider chatProvider = ChatProvider();
+
+  bool showStorage = false;
 
   @override
   void initState() {
@@ -55,8 +62,46 @@ class _MessageBubbleState extends State<MessageBubble> {
 
   // 좋아요 토글
   void _toogleLike() {
-    final updatedChatMessage = chatMessage.copyWith(like: !chatMessage.like);
-    ChatProvider().updateMessage(chatMessage.id!, updatedChatMessage);
+    bool newState = !chatMessage.like;
+    final updatedChatMessage = chatMessage.copyWith(like: newState);
+    _chatProvider.updateMessage(chatMessage.id!, updatedChatMessage);
+
+    if (newState) {
+      setState(() {
+        showStorage = true;
+      });
+    } else {
+      setState(() {
+        showStorage = false;
+      });
+    }
+    _showBottomSheet();
+  }
+
+  void _handleSaveStorage(StorageBox storageBox) {
+    StorageItem newItem =
+        StorageItem(storageBoxId: storageBox.id!, data: chatMessage.message);
+    _storageBoxProvider.saveStorageItem(storageBox.id!, newItem);
+    setState(() {
+      showStorage = false;
+    });
+    Navigator.pop(context); // Add this line to close the bottom sheet
+  }
+
+  void _showBottomSheet() {
+    if (showStorage) {
+      showModalBottomSheet(
+        context: context,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50.0),
+        ),
+        builder: (BuildContext context) {
+          return StorageBoxDrawer(
+              handleSaveStorage: (storageBoxId) =>
+                  _handleSaveStorage(storageBoxId));
+        },
+      );
+    }
   }
 
   @override
