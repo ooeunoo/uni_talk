@@ -1,3 +1,5 @@
+enum ChatRoomCategory { all, virtual }
+
 enum ChatRoomType { personal, virtualUser, unknown }
 
 enum MessageSender { user, chatgpt, unknown }

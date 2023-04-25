@@ -23,6 +23,14 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
   final ChatProvider chatProvider = ChatProvider();
   final VirtualUserProvider virtualUserProvider = VirtualUserProvider();
 
+  final List<String> categories = [
+    'ALL',
+    'Personal',
+    'Accorions',
+    'Icons',
+    'ABC'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -39,27 +47,20 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    double screenHeight = MediaQuery.of(context).size.height;
+    double bannerHeight = screenHeight * 0.1;
+    double categoryHeight = screenHeight * 0.05;
 
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 20, top: 10),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: const Image(
-                  image: AssetImage('assets/images/logo.png'),
-                  width: 120,
-                  height: 120,
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ],
-        ),
+        title: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 30),
+            child: Text("채팅",
+                style: TextStyle(
+                    color: CupertinoColors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold))),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -72,10 +73,42 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
             ),
           ),
         ],
+        centerTitle: false,
         elevation: 0,
       ),
       body: Column(
         children: [
+          SizedBox(
+            height: categoryHeight,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              itemBuilder: (BuildContext context, int index) {
+                String category = categories[index];
+                bool isSelected = category == selectedCategory;
+                return InkResponse(
+                  onTap: () {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      category,
+                      style: TextStyle(
+                        color: isSelected ? theme.primaryColor : Colors.grey,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          SizedBox(height: bannerHeight),
+
           // Chat list
           Expanded(
             child: StreamBuilder(

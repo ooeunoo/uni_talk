@@ -51,7 +51,7 @@ class _MainScreenState extends State<MainScreen> {
                   : CupertinoIcons.chat_bubble,
               size: 28,
             ),
-            label: '',
+            label: '채팅',
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -60,16 +60,16 @@ class _MainScreenState extends State<MainScreen> {
                   : CupertinoIcons.square_grid_2x2,
               size: 28,
             ),
-            label: '',
+            label: '소셜',
           ),
           BottomNavigationBarItem(
             icon: Icon(
               _currentIndex == 2
-                  ? CupertinoIcons.heart_fill
-                  : CupertinoIcons.heart,
+                  ? CupertinoIcons.folder_fill
+                  : CupertinoIcons.folder,
               size: 28,
             ),
-            label: '',
+            label: '서랍',
           ),
           BottomNavigationBarItem(
             icon: Icon(
@@ -78,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                   : CupertinoIcons.person,
               size: 28,
             ),
-            label: '',
+            label: '내정보',
           ),
         ],
       ),

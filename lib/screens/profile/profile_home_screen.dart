@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uni_talk/providers/user_provider.dart';
@@ -17,31 +18,63 @@ class _ProfileHomeScreenState extends State<ProfileHomeScreen> {
     User? user = userProvider.currentUser;
 
     return Scaffold(
-        appBar: AppBar(elevation: 0),
+        appBar: AppBar(
+          toolbarHeight: 80,
+          title: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 30),
+              child: Text("내정보",
+                  style: TextStyle(
+                      color: CupertinoColors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold))),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: IconButton(
+                icon: const Icon(CupertinoIcons.search),
+                onPressed: () {},
+              ),
+            ),
+          ],
+          centerTitle: false,
+          elevation: 0,
+        ),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(15.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(user?.photoURL ??
-                        'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
-                    radius: 50,
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      Text(user?.displayName ?? 'Anonymous',
-                          style: const TextStyle(fontSize: 24)),
-                      const SizedBox(
-                        height: 8,
+                      CircleAvatar(
+                        backgroundImage: NetworkImage(user?.photoURL ??
+                            'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png'),
+                        radius: 30,
                       ),
-                      // _buildAuthProviderChip(user),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(user?.displayName ?? 'Anonymous',
+                              style: const TextStyle(fontSize: 24)),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          // _buildAuthProviderChip(user),
+                        ],
+                      ),
                     ],
-                  )
+                  ),
+                  const Chip(
+                    label: Text(
+                      "계정 설정",
+                      style: TextStyle(color: Color(0xDF5C5D5C), fontSize: 13),
+                    ),
+                    backgroundColor: Color(0xFFEAE8E8),
+                  ),
                 ],
               ),
               const Spacer(),

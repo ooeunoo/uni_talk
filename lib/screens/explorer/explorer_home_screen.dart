@@ -70,39 +70,51 @@ class _ExplorerHomeScreenState extends State<ExplorerHomeScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: CupertinoColors.systemGrey6,
-            ),
-            child: CupertinoTextField(
-              controller: _searchController,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              placeholder: 'Search',
-              prefix: const Padding(
-                padding: EdgeInsets.only(left: 8.0),
-                child: Icon(CupertinoIcons.search,
-                    color: CupertinoColors.systemGrey),
-              ),
-              style: const TextStyle(
-                fontSize: 16,
-                color: CupertinoColors.black,
-              ),
-              clearButtonMode: OverlayVisibilityMode.editing,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: CupertinoColors.systemGrey6,
-              ),
-              placeholderStyle:
-                  const TextStyle(color: CupertinoColors.systemGrey),
-              cursorColor: CupertinoColors.black,
-              keyboardType: TextInputType.text,
-            ),
-          ),
+          toolbarHeight: 80,
+          title: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 30),
+              child: Text("소셜",
+                  style: TextStyle(
+                      color: CupertinoColors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold))),
           elevation: 0,
+          centerTitle: false,
         ),
         body: Column(
           children: [
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: CupertinoColors.systemGrey6,
+                  ),
+                  child: CupertinoTextField(
+                    controller: _searchController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    placeholder: 'Search',
+                    prefix: const Padding(
+                      padding: EdgeInsets.only(left: 20.0),
+                      child: Icon(CupertinoIcons.search,
+                          color: CupertinoColors.systemGrey),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: CupertinoColors.black,
+                    ),
+                    clearButtonMode: OverlayVisibilityMode.editing,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: CupertinoColors.systemGrey6,
+                    ),
+                    placeholderStyle:
+                        const TextStyle(color: CupertinoColors.systemGrey),
+                    cursorColor: CupertinoColors.black,
+                    keyboardType: TextInputType.text,
+                  ),
+                )),
             const SizedBox(
               height: 20,
             ),

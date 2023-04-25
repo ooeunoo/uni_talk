@@ -24,7 +24,7 @@ class _StorageBoxDrawerState extends State<StorageBoxDrawer> {
     double screenHeight = MediaQuery.of(context).size.height;
     const int crossAxisCount = 1;
     final double itemWidth = MediaQuery.of(context).size.width / 2;
-    const double itemHeight = 50.0;
+    const double itemHeight = 30.0;
     final double aspectRatio = itemWidth / itemHeight;
 
     return SizedBox(
@@ -40,12 +40,8 @@ class _StorageBoxDrawerState extends State<StorageBoxDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Storage",
-                      style: TextStyle(
-                        fontSize: 30,
-                        color: CupertinoColors.black,
-                      ),
+                    const SizedBox(
+                      width: 30,
                     ),
                     // add IconButton
                     IconButton(

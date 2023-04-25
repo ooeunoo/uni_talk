@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/firestore.dart';
 import 'package:uni_talk/models/storage_box.dart';
@@ -42,22 +43,24 @@ class _StorageBoxHomeScreenState extends State<StorageBoxHomeScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: TextField(
-            controller: searchController,
-            decoration: const InputDecoration(
-              hintText: 'Search',
-              hintStyle: TextStyle(color: Colors.white54),
-              border: InputBorder.none,
-            ),
-          ),
+          toolbarHeight: 80,
+          title: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 30),
+              child: Text("내서랍",
+                  style: TextStyle(
+                      color: CupertinoColors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold))),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                getCreateStorageBox();
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: IconButton(
+                icon: const Icon(CupertinoIcons.search),
+                onPressed: () {},
+              ),
             ),
           ],
+          centerTitle: false,
           elevation: 0,
         ),
         body: Column(
