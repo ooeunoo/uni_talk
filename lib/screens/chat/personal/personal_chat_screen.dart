@@ -138,11 +138,11 @@ class _PersonalChatScreenState extends State<PersonalChatScreen>
               elevation: 0,
               title: Row(
                 children: <Widget>[
-                  // Padding(
-                  //     padding: const EdgeInsets.all(0),
-                  //     child: CircleAvatar(
-                  //       backgroundImage: NetworkImage(chatRoom.image!),
-                  //     )),
+                  Padding(
+                      padding: const EdgeInsets.all(0),
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(chatRoom.image!),
+                      )),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,14 +158,14 @@ class _PersonalChatScreenState extends State<PersonalChatScreen>
                   ),
                 ],
               ),
-              actions: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: GestureDetector(
-                    child: const Icon(Icons.more_vert),
-                  ),
-                )
-              ],
+              // actions: <Widget>[
+              //   Padding(
+              //     padding: const EdgeInsets.symmetric(horizontal: 10),
+              //     child: GestureDetector(
+              //       child: const Icon(Icons.more_vert),
+              //     ),
+              //   )
+              // ],
             ),
             body: Stack(
               children: [

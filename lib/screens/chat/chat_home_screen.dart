@@ -57,7 +57,7 @@ class _ChatHomeScreenState extends State<ChatHomeScreen> {
       image: 'https://source.unsplash.com/random/640x480', // 랜덤 이미지 URL 생성
     );
 
-    ChatRoom newChatRoom = await _chatProvider.createChatRoom(chatRoom);
+    await _chatProvider.createChatRoom(chatRoom);
     return true;
   }
 
