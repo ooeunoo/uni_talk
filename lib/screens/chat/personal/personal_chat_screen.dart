@@ -133,16 +133,16 @@ class _PersonalChatScreenState extends State<PersonalChatScreen>
         },
         child: Scaffold(
             appBar: AppBar(
+              toolbarHeight: 80,
               iconTheme: theme.chatRoomAppBarIcon,
               elevation: 0,
-              backgroundColor: Colors.white10,
               title: Row(
                 children: <Widget>[
-                  Padding(
-                      padding: const EdgeInsets.all(0),
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(chatRoom.image!),
-                      )),
+                  // Padding(
+                  //     padding: const EdgeInsets.all(0),
+                  //     child: CircleAvatar(
+                  //       backgroundImage: NetworkImage(chatRoom.image!),
+                  //     )),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,8 +159,11 @@ class _PersonalChatScreenState extends State<PersonalChatScreen>
                 ],
               ),
               actions: <Widget>[
-                GestureDetector(
-                  child: const Icon(Icons.more_vert),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: GestureDetector(
+                    child: const Icon(Icons.more_vert),
+                  ),
                 )
               ],
             ),

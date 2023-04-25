@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:uni_talk/screens/chat/chat_home_screen.dart';
-import 'package:uni_talk/screens/explorer/explorer_home_screen.dart';
 import 'package:uni_talk/screens/profile/profile_home_screen.dart';
 import 'package:uni_talk/screens/storage_box/storage_box_home_screen.dart';
 
@@ -17,7 +16,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const ChatHomeScreen(),
-    const ExplorerHomeScreen(),
+    // const ExplorerHomeScreen(),
     const StorageBoxHomeScreen(),
     const ProfileHomeScreen()
   ];
@@ -53,15 +52,15 @@ class _MainScreenState extends State<MainScreen> {
             ),
             label: '채팅',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              _currentIndex == 1
-                  ? CupertinoIcons.square_grid_2x2_fill
-                  : CupertinoIcons.square_grid_2x2,
-              size: 28,
-            ),
-            label: '소셜',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(
+          //     _currentIndex == 1
+          //         ? CupertinoIcons.square_grid_2x2_fill
+          //         : CupertinoIcons.square_grid_2x2,
+          //     size: 28,
+          //   ),
+          //   label: '소셜',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(
               _currentIndex == 2

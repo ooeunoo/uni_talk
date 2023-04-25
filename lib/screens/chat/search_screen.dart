@@ -17,6 +17,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80,
         title: Container(
           margin: const EdgeInsets.only(right: 25),
           decoration: BoxDecoration(

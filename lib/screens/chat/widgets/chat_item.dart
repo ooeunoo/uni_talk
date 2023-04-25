@@ -91,23 +91,23 @@ class ChatItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            FutureBuilder<Widget>(
-              future: _getImage(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const CircularProgressIndicator();
-                }
+            // FutureBuilder<Widget>(
+            //   future: _getImage(),
+            //   builder: (context, snapshot) {
+            //     if (!snapshot.hasData) {
+            //       return const CircularProgressIndicator();
+            //     }
 
-                return Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                  child: ClipOval(child: snapshot.data!),
-                );
-              },
-            ),
+            //     return Container(
+            //       width: 40,
+            //       height: 40,
+            //       decoration: const BoxDecoration(
+            //         shape: BoxShape.circle,
+            //       ),
+            //       child: ClipOval(child: snapshot.data!),
+            //     );
+            //   },
+            // ),
             const SizedBox(width: 10),
             Expanded(
               flex: 1,

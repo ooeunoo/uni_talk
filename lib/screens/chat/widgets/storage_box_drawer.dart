@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/firestore.dart';
 import 'package:uni_talk/models/storage_box.dart';
@@ -18,6 +17,7 @@ class StorageBoxDrawer extends StatefulWidget {
 class _StorageBoxDrawerState extends State<StorageBoxDrawer> {
   final StorageBoxProvider _storageBoxProvider = StorageBoxProvider();
   final UserProvider _userProvider = UserProvider();
+  final TextEditingController _titleTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,25 +34,17 @@ class _StorageBoxDrawerState extends State<StorageBoxDrawer> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 30),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(
-                      width: 30,
-                    ),
-                    // add IconButton
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.add),
-                      iconSize: 30,
-                      onPressed: () {
-                        // Add your onPressed logic here
-                      },
-                    ),
-                  ],
-                )),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  "서랍장",
+                  style: TextStyle(color: Colors.black, fontSize: 18),
+                )
+              ],
+            ),
+            const SizedBox(height: 20),
             Expanded(
                 child: Padding(
               padding: const EdgeInsets.all(10.0),

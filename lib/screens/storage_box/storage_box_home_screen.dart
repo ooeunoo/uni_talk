@@ -17,28 +17,72 @@ class StorageBoxHomeScreen extends StatefulWidget {
 class _StorageBoxHomeScreenState extends State<StorageBoxHomeScreen> {
   final StorageBoxProvider _storageBoxProvider = StorageBoxProvider();
   final UserProvider _userProvider = UserProvider();
-  final searchController = TextEditingController();
+  final TextEditingController _titleTextController = TextEditingController();
 
-  Future<void> getCreateStorageBox() async {
+  Future<bool> createStorageBox(String title) async {
     User? user = _userProvider.currentUser;
     if (user == null) {
-      return;
+      return false;
+    }
+
+    if (title.isEmpty) {
+      return false;
     }
 
     StorageBox storageBox =
-        StorageBox(icon: '', userId: user.uid, title: 'hello', totalItems: 0);
+        StorageBox(icon: '', userId: user.uid, title: title, totalItems: 0);
 
     await _storageBoxProvider.createStorageBox(storageBox);
 
-    return;
+    return true;
+  }
+
+  void _showCreateStorageBoxDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('새 서랍장'),
+        content: TextField(
+          controller: _titleTextController,
+          decoration: const InputDecoration(
+            hintText: '',
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.blue),
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              bool success = await createStorageBox(_titleTextController.text);
+              // Close the dialog box
+
+              if (success) {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     const int pageSize = 10;
     const int crossAxisCount = 1;
+    const double mainAxisSpacing = 8;
+    const double crossAxisSpacing = 8;
     final double itemWidth = MediaQuery.of(context).size.width / 2;
-    const double itemHeight = 50.0;
+    const double itemHeight = 30.0;
     final double aspectRatio = itemWidth / itemHeight;
 
     return Scaffold(
@@ -46,7 +90,7 @@ class _StorageBoxHomeScreenState extends State<StorageBoxHomeScreen> {
           toolbarHeight: 80,
           title: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 5, vertical: 30),
-              child: Text("내서랍",
+              child: Text("서랍장",
                   style: TextStyle(
                       color: CupertinoColors.black,
                       fontSize: 24,
@@ -55,8 +99,10 @@ class _StorageBoxHomeScreenState extends State<StorageBoxHomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: IconButton(
-                icon: const Icon(CupertinoIcons.search),
-                onPressed: () {},
+                icon: const Icon(CupertinoIcons.add),
+                onPressed: () {
+                  _showCreateStorageBoxDialog(context);
+                },
               ),
             ),
           ],
@@ -65,15 +111,12 @@ class _StorageBoxHomeScreenState extends State<StorageBoxHomeScreen> {
         ),
         body: Column(
           children: [
-            const SizedBox(
-              height: 20,
-            ),
             Expanded(
               child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: FirestoreQueryBuilder<StorageBox>(
                     query: _storageBoxProvider.getStorageBoxReferences(
-                        UserProvider().currentUser!.uid),
+                        _userProvider.currentUser!.uid),
                     pageSize: pageSize,
                     builder: (context, snapshot, _) {
                       if (snapshot.isFetching) {
@@ -85,8 +128,8 @@ class _StorageBoxHomeScreenState extends State<StorageBoxHomeScreen> {
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                     childAspectRatio: aspectRatio,
-                                    mainAxisSpacing: 8,
-                                    crossAxisSpacing: 8,
+                                    mainAxisSpacing: mainAxisSpacing,
+                                    crossAxisSpacing: crossAxisSpacing,
                                     crossAxisCount: crossAxisCount),
                             itemCount: snapshot.docs.length,
                             itemBuilder: (context, index) {

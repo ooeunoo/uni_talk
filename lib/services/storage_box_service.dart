@@ -22,6 +22,7 @@ class StorageBoxService {
   Query<StorageBox> getStorageBoxReferences(String userId) {
     return storageBoxRef
         .where('userId', isEqualTo: userId)
+        .orderBy('createTime', descending: true)
         .withConverter<StorageBox>(
             fromFirestore: (snapshot, _) =>
                 StorageBox.fromDocumentSnapshot(snapshot),
@@ -53,32 +54,28 @@ class StorageBoxService {
   // 스토리지 박스 아이템 저장
   Future<void> saveStorageItem(
       String storageBoxId, StorageItem storageItem) async {
-    await storageItemRef.add({
-      'storageBoxId': storageBoxId,
-      'data': storageItem.data,
-      'createTime': DateTime.now(),
-      'modifiedTiem': DateTime.now(),
-    });
-    await updateStorageBox(storageBoxId);
-  }
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      // Add the new storage item
+      await storageItemRef.add({
+        'storageBoxId': storageBoxId,
+        'data': storageItem.data,
+        'createTime': DateTime.now(),
+        'modifiedTiem': DateTime.now(),
+      });
 
-  // // 메시지 업데이트
-  // Future<void> updateMessage(
-  //     String messageId, ChatMessage updatedChatMessage) async {
-  //   await chatMessageRef.doc(messageId).update({
-  //     'chatRoomId': updatedChatMessage.chatRoomId,
-  //     'sentBy': getMessageSender(updatedChatMessage.sentBy),
-  //     'message': updatedChatMessage.message,
-  //     'like': updatedChatMessage.like,
-  //   });
-  //   await updateChatRoomPreview(
-  //       updatedChatMessage.chatRoomId, updatedChatMessage.message);
-  // }
-
-  // 채팅룸의 modifiedTime과 previewMessage 업데이트
-  Future<void> updateStorageBox(String storageBoxId) async {
-    await storageBoxRef.doc(storageBoxId).update({
-      'modifiedTime': DateTime.now(),
+      // Update the totalItems count of the storage box
+      final storageBoxIdRef = storageBoxRef.doc(storageBoxId);
+      final storageBoxSnapshot = await transaction.get(storageBoxIdRef);
+      final storageBoxData = storageBoxSnapshot.data();
+      if (storageBoxData == null) {
+        return;
+      }
+      final int totalItems = storageBoxData['totalItems'] ?? 0;
+      final int newTotalItems = totalItems + 1;
+      transaction.update(storageBoxIdRef, {
+        'modifiedTime': DateTime.now(),
+        'totalItems': newTotalItems,
+      });
     });
   }
 }

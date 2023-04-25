@@ -60,6 +60,7 @@ class _CreateChatScreenState extends State<CreateChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          toolbarHeight: 80,
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () {
