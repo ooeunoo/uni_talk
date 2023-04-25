@@ -187,42 +187,10 @@ class _PersonalChatScreenState extends State<PersonalChatScreen>
                             final msgBubble = MessageBubble(
                               key: ValueKey(chatMessage.id),
                               chatMessage: chatMessage,
-                              isWriting: false,
                             );
 
                             messageWidgets.add(msgBubble);
                             prevMessages.add(chatMessage);
-                          }
-
-                          if (writingChatGPT) {
-                            final chatMessage = ChatMessage(
-                              chatRoomId: chatRoom.id!,
-                              sentBy: MessageSender.chatgpt,
-                              message: '',
-                              like: false,
-                            );
-
-                            messageWidgets.insert(
-                                0,
-                                MessageBubble(
-                                    key: getValueKey(),
-                                    chatMessage: chatMessage,
-                                    isWriting: true));
-                          } else {
-                            if (errorOfChatGPT) {
-                              final chatMessage = ChatMessage(
-                                  chatRoomId: chatRoom.id!,
-                                  sentBy: MessageSender.chatgpt,
-                                  message: '죄송해요 잠시 오류가 발생했어요.',
-                                  like: false);
-
-                              messageWidgets.insert(
-                                  0,
-                                  MessageBubble(
-                                      key: getValueKey(),
-                                      chatMessage: chatMessage,
-                                      isWriting: false));
-                            }
                           }
 
                           return Expanded(
@@ -230,7 +198,8 @@ class _PersonalChatScreenState extends State<PersonalChatScreen>
                               controller: chatStreamScrollController,
                               reverse: true,
                               padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 10),
+                                vertical: 15,
+                              ),
                               children: messageWidgets,
                             ),
                           );

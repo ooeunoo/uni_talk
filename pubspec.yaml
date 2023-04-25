@@ -54,7 +54,6 @@ dependencies:
   badges: ^3.1.1
   flutterfire_ui: ^0.4.3+20
   flutter_markdown: ^0.6.14
-  bottom_drawer: ^0.0.5
 
 dev_dependencies:
   flutter_test:
